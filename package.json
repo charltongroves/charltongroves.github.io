@@ -1,0 +1,16 @@
+{
+  "name": "charltongroves.github.io",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:charltongroves/charltongroves.github.io.git",
+  "author": "Charlton Groves <charlieg@canva.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "1.2.1",
+    "typescript": "^5.4.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "server": "live-server ./public"
+  }
+}
