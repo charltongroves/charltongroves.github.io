@@ -1,18 +1,27 @@
 import _ from "lodash";
 
 let AMPLITUDE: number = 0.4;
+let AMPLITUDE_DEFAULT: number = 0.4;
 
 let PERSPECTIVE: number = 1;
+let PERSPECTIVE_DEFAULT: number = 1;
 
 let BPM: number = 100;
 
 let NUM_SQUARES: number = 300;
+let NUM_SQUARES_DEFAULT: number = 300;
 let NOISE: number = 1;
+let NOISE_DEFAULT: number = 1;
 let DAMPENING: number = 1;
+let DAMPENING_DEFAULT: number = 1;
 let PULSE: number = 1;
+let PULSE_DEFAULT: number = 1;
 let SPIN: number = 0.001;
+let SPIN_DEFAULT: number = 0.001;
 let COLOR: string = "blackwhite";
+let COLOR_DEFAULT: string = "blackwhite";
 let BEAT_SWITCH: string = "4";
+let BEAT_SWITCH_DEFAULT: string = "4";
 let MOUSE_MODE: boolean = true;
 let touchingWithOneFinger = false;
 
@@ -234,7 +243,7 @@ const handleTouchStart = (e: TouchEvent) => {
   touchingWithOneFinger = true
 };
 window.addEventListener("touchstart", handleTouchStart);
-
+let touchingWithTwoFinger = false;
 let totalDistanceMoved: number = 0;
 const handleTouchMove = (e: TouchEvent) => {
   // find total distance moved in the last 10 touches
@@ -243,34 +252,37 @@ const handleTouchMove = (e: TouchEvent) => {
   mouse_x = touch.clientX;
   mouse_y = touch.clientY;
   const touch2 = touches[1];
-  if (touch2 != null) {
-    touchingWithOneFinger = false;
-    const distanceBetween = Math.sqrt(Math.pow(touch.clientX - touch2.clientX, 2) + Math.pow(touch.clientY - touch2.clientY, 2));
-    AMPLITUDE = distanceBetween / 400 
-  }
-  const x = touch.clientX;
-  const y = touch.clientY;
-  totalDistanceMoved += Math.abs(x - mouse_x) + Math.abs(y - mouse_y);
-
-  NOISE =  Math.min(1.1, NOISE * 1.0001 + 0.0001)
+  touchingWithOneFinger = true;
+  touchingWithTwoFinger = touch2 != null;
+  incrementTouch()
 };
+
+const incrementTouch = () => {
+  if (touchingWithOneFinger && !touchingWithTwoFinger) {
+    NOISE = Math.min(1.1, NOISE * 1.0001 + 0.0001)
+  } else {
+    NOISE = NOISE - (NOISE - 1) * 0.01;
+  }
+  if (touchingWithTwoFinger) {
+    COLOR = 'color'
+  } else if (!touchingWithTwoFinger) {
+    COLOR = COLOR_DEFAULT
+  }
+}
 
 window.addEventListener("touchmove", handleTouchMove);
 
 // on touch end
 const handleTouchEnd = (e: TouchEvent) => {
   touchingWithOneFinger = false;
-  AMPLITUDE = 0.5;
+  touchingWithTwoFinger = false;
+  COLOR = COLOR_DEFAULT
 };
 
 window.addEventListener("touchend", handleTouchEnd);
 // poll every 20ms
 const runEvery20ms = () => {
-  if (touchingWithOneFinger) {
-    NOISE = Math.min(1.1, NOISE * 1.0001 + 0.0001)
-  } else {
-    NOISE = NOISE - (NOISE - 1) * 0.01;
-  }
+  incrementTouch();
 }
 
 setInterval(runEvery20ms, 20);
