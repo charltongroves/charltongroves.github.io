@@ -233,14 +233,17 @@ const handleMouseMove = (e: MouseEvent) => {
   mouse_y = e.pageY - 14;
 };
 window.addEventListener("mousemove", handleMouseMove);
-
+let startedTouching = 0
 // on touch start
 const handleTouchStart = (e: TouchEvent) => {
   const touch = e.touches[0];
+  const touch2 = e.touches[1];
+  touchingWithOneFinger =  touch2 == null;;
+  touchingWithTwoFinger = touch2 != null;
   mouse_x = touch.clientX;
   mouse_y = touch.clientY;
   NOISE = Math.max(NOISE, 1.001)
-  touchingWithOneFinger = true
+  startedTouching = Date.now()
 };
 window.addEventListener("touchstart", handleTouchStart);
 let touchingWithTwoFinger = false;
@@ -249,11 +252,10 @@ const handleTouchMove = (e: TouchEvent) => {
   // find total distance moved in the last 10 touches
   const touches = e.touches;
   const touch = touches[0];
-  mouse_x = touch.clientX;
-  mouse_y = touch.clientY;
-  const touch2 = touches[1];
-  touchingWithOneFinger = true;
-  touchingWithTwoFinger = touch2 != null;
+  if (touchingWithOneFinger) {
+    mouse_x = touch.clientX;
+    mouse_y = touch.clientY;
+  }
   incrementTouch()
 };
 
