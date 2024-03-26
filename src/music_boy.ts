@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-let AMPLITUDE: number = 0.5;
+let AMPLITUDE: number = 0.4;
 
 let PERSPECTIVE: number = 1;
 
@@ -14,6 +14,7 @@ let SPIN: number = 0.001;
 let COLOR: string = "blackwhite";
 let BEAT_SWITCH: string = "4";
 let MOUSE_MODE: boolean = true;
+let touchingWithOneFinger = false;
 
 function handleKeyPress(e: KeyboardEvent) {
   if (e.keyCode == 38) {
@@ -181,7 +182,9 @@ const animateFrame = (ctx: CanvasRenderingContext2D, distanceFactor: number, it:
   const dis_fact: number = dis_fact_normal * MULTIPLIER;
   const perspective: number = PERSPECTIVE * PERSPECTIVE;
   const depth: number = (SECTION_OFFSET * AMPLITUDE) / perspective;
-  const van: [number, number] = [WIDTH * perspective * SECTION_OFFSET + 0.5 * mouse_x, HEIGHT * perspective * SECTION_OFFSET2+ 0.5 * mouse_y];
+  const van: [number, number] = [
+    touchingWithOneFinger ? mouse_x : WIDTH * perspective * SECTION_OFFSET + mouse_x,
+    touchingWithOneFinger ? mouse_y : HEIGHT * perspective * SECTION_OFFSET2+ 0.5 * mouse_y];
   const additional: number = GOLDENRAT * dis_fact * 20;
   const squares = range(0, numOfSquares).map(n => {
     const deg_rot = n * GOLDENRAT * 360 + additional;
@@ -222,10 +225,12 @@ const handleMouseMove = (e: MouseEvent) => {
 };
 window.addEventListener("mousemove", handleMouseMove);
 
-let touchingWithOneFinger = false;
 // on touch start
 const handleTouchStart = (e: TouchEvent) => {
-  NOISE = Math.max(NOISE, 1.00001)
+  const touch = e.touches[0];
+  mouse_x = touch.clientX;
+  mouse_y = touch.clientY;
+  NOISE = Math.max(NOISE, 1.001)
   touchingWithOneFinger = true
 };
 window.addEventListener("touchstart", handleTouchStart);
@@ -235,6 +240,8 @@ const handleTouchMove = (e: TouchEvent) => {
   // find total distance moved in the last 10 touches
   const touches = e.touches;
   const touch = touches[0];
+  mouse_x = touch.clientX;
+  mouse_y = touch.clientY;
   const touch2 = touches[1];
   if (touch2 != null) {
     touchingWithOneFinger = false;
@@ -245,7 +252,7 @@ const handleTouchMove = (e: TouchEvent) => {
   const y = touch.clientY;
   totalDistanceMoved += Math.abs(x - mouse_x) + Math.abs(y - mouse_y);
 
-  NOISE =  Math.min(1.2, NOISE * 1.0001 + 0.0001)
+  NOISE =  Math.min(1.1, NOISE * 1.0001 + 0.0001)
 };
 
 window.addEventListener("touchmove", handleTouchMove);
@@ -260,7 +267,7 @@ window.addEventListener("touchend", handleTouchEnd);
 // poll every 20ms
 const runEvery20ms = () => {
   if (touchingWithOneFinger) {
-    NOISE = Math.min(1.2, NOISE * 1.0001 + 0.0001)
+    NOISE = Math.min(1.1, NOISE * 1.0001 + 0.0001)
   } else {
     NOISE = NOISE - (NOISE - 1) * 0.01;
   }
