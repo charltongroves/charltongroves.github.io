@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-let AMPLITUDE: number = 1;
+let AMPLITUDE: number = 0.5;
 
 let PERSPECTIVE: number = 1;
 
@@ -221,6 +221,53 @@ const handleMouseMove = (e: MouseEvent) => {
   mouse_y = e.pageY - 14;
 };
 window.addEventListener("mousemove", handleMouseMove);
+
+let touchingWithOneFinger = false;
+// on touch start
+const handleTouchStart = (e: TouchEvent) => {
+  NOISE = Math.max(NOISE, 1.00001)
+  touchingWithOneFinger = true
+};
+window.addEventListener("touchstart", handleTouchStart);
+
+let totalDistanceMoved: number = 0;
+const handleTouchMove = (e: TouchEvent) => {
+  // find total distance moved in the last 10 touches
+  const touches = e.touches;
+  const touch = touches[0];
+  const touch2 = touches[1];
+  if (touch2 != null) {
+    touchingWithOneFinger = false;
+    const distanceBetween = Math.sqrt(Math.pow(touch.clientX - touch2.clientX, 2) + Math.pow(touch.clientY - touch2.clientY, 2));
+    AMPLITUDE = distanceBetween / 400 
+  }
+  const x = touch.clientX;
+  const y = touch.clientY;
+  totalDistanceMoved += Math.abs(x - mouse_x) + Math.abs(y - mouse_y);
+
+  NOISE =  Math.min(1.2, NOISE * 1.0001 + 0.0001)
+};
+
+window.addEventListener("touchmove", handleTouchMove);
+
+// on touch end
+const handleTouchEnd = (e: TouchEvent) => {
+  touchingWithOneFinger = false;
+  AMPLITUDE = 0.5;
+};
+
+window.addEventListener("touchend", handleTouchEnd);
+// poll every 20ms
+const runEvery20ms = () => {
+  if (touchingWithOneFinger) {
+    NOISE = Math.min(1.2, NOISE * 1.0001 + 0.0001)
+  } else {
+    NOISE = NOISE - (NOISE - 1) * 0.01;
+  }
+}
+
+setInterval(runEvery20ms, 20);
+
 
 let it: number = 0;
 let lastTime: number = 0;
