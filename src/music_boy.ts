@@ -1,175 +1,54 @@
-const AMPLITUDE_SLIDER = document.getElementById("amplitudeSlider");
-AMPLITUDE_SLIDER.min = 0;
-AMPLITUDE_SLIDER.max = 3;
-AMPLITUDE_SLIDER.step = 0.01;
-AMPLITUDE_SLIDER.defaultValue = 1;
-let AMPLITUDE = 1;
+import _ from "lodash";
 
-const PERSPECTIVE_SLIDER = document.getElementById("perspectiveSlider")!;
-PERSPECTIVE_SLIDER.min = 0;
-PERSPECTIVE_SLIDER.max = 5;
-PERSPECTIVE_SLIDER.step = 0.1;
-PERSPECTIVE_SLIDER.defaultValue = 1;
-let PERSPECTIVE = 1;
+let AMPLITUDE: number = 1;
 
-const BPM_SLIDER = document.getElementById("bpmSlider");
-BPM_SLIDER.min = 30;
-BPM_SLIDER.max = 220;
-BPM_SLIDER.step = 0.5;
-BPM_SLIDER.defaultValue = 100;
-let BPM = 100;
+let PERSPECTIVE: number = 1;
 
-const BPM_VALUE = document.getElementById("bpmValue");
+let BPM: number = 100;
 
-const TAP_TO_SYNC_BUTTON = document.getElementById("tapToSync");
+let NUM_SQUARES: number = 300;
+let NOISE: number = 1;
+let DAMPENING: number = 1;
+let PULSE: number = 1;
+let SPIN: number = 0.001;
+let COLOR: string = "blackwhite";
+let BEAT_SWITCH: string = "4";
+let MOUSE_MODE: boolean = true;
 
-const TAP_IN_BPM_BUTTON = document.getElementById("tapInBPM");
-
-const RECORD_BUTTON = document.getElementById("recordButton");
-
-const RECORD_BUTTON_LABEL = document.getElementById("recordButtonLabel");
-
-const RECORD_LOCATION = document.getElementById("recordingLocation");
-
-const TAP_COUNTER = document.getElementById("tapCounter");
-
-const NUM_SQUARES_SLIDER = document.getElementById("numSquaresSlider");
-NUM_SQUARES_SLIDER.min = 100;
-NUM_SQUARES_SLIDER.max = 1000;
-NUM_SQUARES_SLIDER.step = 5;
-NUM_SQUARES_SLIDER.defaultValue = 300;
-let NUM_SQUARES = 300;
-
-const NOISE_SLIDER = document.getElementById("noiseSlider");
-NOISE_SLIDER.min = 1;
-NOISE_SLIDER.max = 1.1;
-NOISE_SLIDER.step = 0.01;
-NOISE_SLIDER.defaultValue = 1;
-let NOISE = 1;
-
-const DAMPENING_SLIDER = document.getElementById("dampeningSlider");
-DAMPENING_SLIDER.min = 0.2;
-DAMPENING_SLIDER.max = 1;
-DAMPENING_SLIDER.step = 0.01;
-DAMPENING_SLIDER.defaultValue = 0.85;
-let DAMPENING = 1;
-
-const PULSE_SLIDER = document.getElementById("pulseSlider");
-PULSE_SLIDER.min = 0;
-PULSE_SLIDER.max = 3;
-PULSE_SLIDER.step = 0.1;
-PULSE_SLIDER.defaultValue = 1;
-let PULSE = 1;
-
-const SPIN_SLIDER = document.getElementById("spinSlider");
-SPIN_SLIDER.min = 0;
-SPIN_SLIDER.max = 0.015;
-SPIN_SLIDER.step = 0.0005;
-SPIN_SLIDER.defaultValue = 0.001;
-let SPIN = 0.001;
-
-const COLOR_MODE_SELECT = document.getElementById("colorMode");
-let COLOR = "blackwhite";
-
-const BEAT_SWITCH_SELECT = document.getElementById("beatSwitchMode");
-let BEAT_SWITCH = "4";
-
-const MOUSE_MODE_CHECKBOX = document.getElementById("mouseMode");
-MOUSE_MODE_CHECKBOX.defaultChecked = false;
-MOUSE_MODE_CHECKBOX.checked = false;
-let MOUSE_MODE = false;
-
-const USE_MIC_CHECKBOX = document.getElementById("useMic");
-let USE_MIC = false;
-
-let an = null;
-let ac = null;
-const useMic = () => {
-  if (ac != null) {
-    ac = null;
-    an = null;
-    return;
-  }
-  ac = new AudioContext();
-  const audioCtx = ac;
-  an = ac.createAnalyser();
-  an.smoothingTimeConstant = 0.86;
-  an.fftSize = 512;
-  const analCtx = an;
-
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    const strSouce = audioCtx.createMediaStreamSource(stream);
-    strSouce.connect(analCtx);
-  });
-};
-USE_MIC_CHECKBOX.onclick = useMic;
-
-const updateVals = () => {
-  AMPLITUDE = Number(AMPLITUDE_SLIDER.value);
-  PERSPECTIVE = Number(PERSPECTIVE_SLIDER.value);
-  BPM = Number(BPM_SLIDER.value);
-  BPM_VALUE.innerText = String(Math.round(BPM * 2) / 2);
-  DAMPENING = Number(DAMPENING_SLIDER.value);
-  NUM_SQUARES = Number(NUM_SQUARES_SLIDER.value);
-  NOISE = Number(NOISE_SLIDER.value);
-  COLOR = COLOR_MODE_SELECT.value;
-  BEAT_SWITCH = BEAT_SWITCH_SELECT.value;
-  MOUSE_MODE = MOUSE_MODE_CHECKBOX.checked;
-  USE_MIC = USE_MIC_CHECKBOX.checked;
-  PULSE = Number(PULSE_SLIDER.value);
-  SPIN = Number(SPIN_SLIDER.value);
-  if (an != null) {
-    an.smoothingTimeConstant = DAMPENING;
-  }
-};
-
-setInterval(updateVals, 20);
-function handleKeyPress(e) {
+function handleKeyPress(e: KeyboardEvent) {
   if (e.keyCode == 38) {
-    AMPLITUDE_SLIDER.value = AMPLITUDE * 0.9;
+    AMPLITUDE = AMPLITUDE * 0.9;
   } else if (e.keyCode == 40) {
-    AMPLITUDE_SLIDER.value = AMPLITUDE * 1.1;
+    AMPLITUDE = AMPLITUDE * 1.1;
   } else if (e.keyCode == 37) {
-    BPM_SLIDER.value = BPM * 0.9;
+    BPM = BPM * 0.9;
   } else if (e.keyCode == 39) {
-    BPM_SLIDER.value = BPM * 1.1;
+    BPM = BPM * 1.1;
   } else if (e.key == "a") {
-    NOISE = NOISE * 0.99;
-  } else if (e.key == "d") {
-    NOISE = NOISE * 1.01;
+    NOISE = NOISE - 0.01
+  } else if (e.key == "s") {
+    NOISE = NOISE + 0.01;
   }
 }
 
 document.addEventListener("keydown", handleKeyPress);
 
-const SIZE = 500;
-const PADDING = 100;
-const ACTUAL_SIZE = 1000;
-const BG = '#000';
-const STROKE = '#fff';
-let mouse_x = 300;
-let mouse_y = 300;
-const toRadians = degree => degree * (Math.PI / 180);
-const toDegree = radians => radians * (180 / Math.PI);
-const distBetween = (p1, p2) => Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2));
+// Actual size is the width of the viewport
+const HEIGHT: number = document.documentElement.clientHeight;
+const WIDTH: number = document.documentElement.clientWidth;
+const BG: string = '#000';
+let mouse_x: number = 300;
+let mouse_y: number = 300;
+const toRadians = (degree: number): number => degree * (Math.PI / 180);
+const distBetween = (p1: [number, number], p2: [number, number]): number => Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2));
 
-// $FlowFixMe
-const c = document.getElementById("myCanvas");
-const global_ctx = c.getContext("2d");
+const c = document.getElementById("myCanvas") as HTMLCanvasElement;
+// set canvas to height and width of viewport
+c.width = document.documentElement.clientWidth;
+c.height = document.documentElement.clientHeight;
+const global_ctx = c.getContext("2d")!;
 
-// $FlowFixMe
-const raw_sine_c = document.getElementById("audioOutput");
-const raw_sine_ctx = raw_sine_c.getContext("2d");
-
-// $FlowFixMe
-const audio_c = document.getElementById("audioSin");
-const audio_ctx = audio_c.getContext("2d");
-
-// $FlowFixMe
-const osc_c = document.getElementById("oscilliscope");
-const osc_ctx = osc_c.getContext("2d");
-
-const renderSquare = (ctx, strokecolor, fillcolor, tl, ptl, pbl, bl, fill) => {
+const renderSquare = (ctx: CanvasRenderingContext2D, strokecolor: string, fillcolor: string, tl: [number, number], ptl: [number, number], pbl: [number, number], bl: [number, number], fill: boolean) => {
   ctx.fillStyle = fillcolor;
   ctx.strokeStyle = strokecolor;
 
@@ -185,21 +64,21 @@ const renderSquare = (ctx, strokecolor, fillcolor, tl, ptl, pbl, bl, fill) => {
   ctx.stroke();
   ctx.closePath();
 };
-const drawColorSquare = (ctx, origin, size, van, distanceFactor, colorOffset) => {
-  const noise_multiplier = () => Math.random() * (1 - NOISE) + 1;
+const drawColorSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number, colorOffset: number) => {
+  const noise_multiplier = (): number => Math.random() * (1 - NOISE) + 1;
   const x = origin[0] * noise_multiplier();
   const y = origin[1] * noise_multiplier();
   const px = van[0];
   const py = van[1];
-  const getmid = (a, b) => (a + (b - a) * distanceFactor) * noise_multiplier();
-  const tl = [x, y];
-  const tr = [x + size, y];
-  const bl = [x, y + size];
-  const br = [x + size, y + size];
-  const ptl = [getmid(tl[0], px), getmid(tl[1], py)];
-  const ptr = [getmid(tr[0], px), getmid(tr[1], py)];
-  const pbl = [getmid(bl[0], px), getmid(bl[1], py)];
-  const pbr = [getmid(br[0], px), getmid(br[1], py)];
+  const getmid = (a: number, b: number): number => (a + (b - a) * distanceFactor) * noise_multiplier();
+  const tl: [number, number] = [x, y];
+  const tr: [number, number] = [x + size, y];
+  const bl: [number, number] = [x, y + size];
+  const br: [number, number] = [x + size, y + size];
+  const ptl: [number, number] = [getmid(tl[0], px), getmid(tl[1], py)];
+  const ptr: [number, number] = [getmid(tr[0], px), getmid(tr[1], py)];
+  const pbl: [number, number] = [getmid(bl[0], px), getmid(bl[1], py)];
+  const pbr: [number, number] = [getmid(br[0], px), getmid(br[1], py)];
   const color = "hsl(" + colorOffset % 360 + ", 100%, 70%)";
   const lineColor = COLOR === "outlinecolor" ? "#fff" : color;
   // rect left
@@ -222,21 +101,21 @@ const drawColorSquare = (ctx, origin, size, van, distanceFactor, colorOffset) =>
   renderSquare(ctx, lineColor, color, ptl, ptr, pbr, pbl, true);
 };
 
-const drawSquare = (ctx, origin, size, van, distanceFactor) => {
-  const noise_multiplier = () => Math.random() * (1 - NOISE) + 1;
+const drawSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number) => {
+  const noise_multiplier = (): number => Math.random() * (1 - NOISE) + 1;
   const x = origin[0] * noise_multiplier();
   const y = origin[1] * noise_multiplier();
   const px = van[0];
   const py = van[1];
-  const getmid = (a, b) => (a + (b - a) * distanceFactor) * noise_multiplier();
-  const tl = [x, y];
-  const tr = [x + size, y];
-  const bl = [x, y + size];
-  const br = [x + size, y + size];
-  const ptl = [getmid(tl[0], px), getmid(tl[1], py)];
-  const ptr = [getmid(tr[0], px), getmid(tr[1], py)];
-  const pbl = [getmid(bl[0], px), getmid(bl[1], py)];
-  const pbr = [getmid(br[0], px), getmid(br[1], py)];
+  const getmid = (a: number, b: number): number => (a + (b - a) * distanceFactor) * noise_multiplier();
+  const tl: [number, number] = [x, y];
+  const tr: [number, number] = [x + size, y];
+  const bl: [number, number] = [x, y + size];
+  const br: [number, number] = [x + size, y + size];
+  const ptl: [number, number] = [getmid(tl[0], px), getmid(tl[1], py)];
+  const ptr: [number, number] = [getmid(tr[0], px), getmid(tr[1], py)];
+  const pbl: [number, number] = [getmid(bl[0], px), getmid(bl[1], py)];
+  const pbr: [number, number] = [getmid(br[0], px), getmid(br[1], py)];
   const color = "#000";
   // rect left
   ctx.strokeStyle = color;
@@ -258,21 +137,10 @@ const drawSquare = (ctx, origin, size, van, distanceFactor) => {
   renderSquare(ctx, "#fff", "#000", ptl, ptr, pbr, pbl, false);
 };
 
-const drawPoint = (ctx, x, y) => {
-  ctx.strokeStyle = "#fff";
-  ctx.beginPath();
-  x = x % ACTUAL_SIZE;
-  ctx.moveTo(...[x, y]);
-  ctx.lineTo(...[x + 6, y]);
-  ctx.stroke();
-  ctx.closePath();
-  return 1;
-};
-
-const range = (start, stop) => [...Array(stop - start).keys()].map(n => n + start);
-const getRandInt = (from, to) => Math.round(Math.random() * (to - from) + from);
-const PREDEFINED = [0.05, 0.249, 0.33, 0.495, 0.665, 1.61803398875];
-const getMemoizedRandomRatio = _.memoize(num => {
+const range = (start: number, stop: number): number[] => [...Array(stop - start).keys()].map(n => n + start);
+const getRandInt = (from: number, to: number): number => Math.round(Math.random() * (to - from) + from);
+const PREDEFINED: number[] = [0.05, 0.249, 0.33, 0.495, 0.665, 1.61803398875];
+const getMemoizedRandomRatio = _.memoize((num: number): number => {
   const idx = getRandInt(0, 20);
   if (idx >= PREDEFINED.length) {
     return Math.random();
@@ -280,59 +148,50 @@ const getMemoizedRandomRatio = _.memoize(num => {
     return PREDEFINED[idx];
   }
 });
-const getMemoizedRandomChange = _.memoize(num => getRandInt(0, 360));
-const secPerBeat = 60 / BPM;
-const msPerBeat = secPerBeat * 100;
-const msPerBar = secPerBeat * 400;
-const msPerSection = secPerBeat * 4;
-const degPerBeat = 360 / msPerBeat;
-const degPerBar = 360 / msPerBar;
-const degPerSection = 360 / msPerSection;
-const animateFrame = (ctx, distanceFactor, it, loudness, frequency) => {
+const getMemoizedRandomChange = _.memoize((num: number): number => getRandInt(0, 360));
+const secPerBeat: number = 60 / BPM;
+const msPerBeat: number = secPerBeat * 100;
+const msPerBar: number = secPerBeat * 400;
+const msPerSection: number = secPerBeat * 4;
+const animateFrame = (ctx: CanvasRenderingContext2D, distanceFactor: number, it: number) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.fillStyle = BG;
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   // Timing
-  const secPerBeat = 60 / BPM;
-  const msPerBeat = secPerBeat * 100;
-  const msPerBar = msPerBeat * 4;
-  const msPerFourBar = msPerBar * 4;
-  const msPerSection = msPerBar * 16;
-  const msPerBeatSwitch = msPerBeat * Number(BEAT_SWITCH);
-  const degPerBeat = 360 / msPerBeat;
-  const degPerBar = 360 / msPerBar;
-  const degPerSection = 360 / msPerSection;
-  const itForThisBeatSwitch = it % msPerBeatSwitch;
+  const secPerBeat: number = 60 / BPM;
+  const msPerBeat: number = secPerBeat * 100;
+  const msPerBar: number = msPerBeat * 4;
+  const msPerSection: number = msPerBar * 16;
+  const msPerBeatSwitch: number = msPerBeat * Number(BEAT_SWITCH);
+  const degPerBeat: number = 360 / msPerBeat;
+  const degPerBar: number = 360 / msPerBar;
+  const degPerSection: number = 360 / msPerSection;
+  const itForThisBeatSwitch: number = it % msPerBeatSwitch;
   // **************
-  const spin = SPIN * SPIN;
-  const bar = getMemoizedRandomChange(Math.floor(it / msPerBar));
-  const beatSwitch = getMemoizedRandomChange(200 + Math.floor(it / msPerBeatSwitch));
-  const section = getMemoizedRandomChange(200 + Math.floor(it / msPerSection));
-  const timeToCreateSquares = Math.min(msPerBar, msPerBeatSwitch);
-  const numOfSquares = Math.min(Math.round((it + 1) % msPerBeatSwitch / timeToCreateSquares * NUM_SQUARES), NUM_SQUARES);
-  const GOLDENRAT = getMemoizedRandomRatio(0.25 + beatSwitch * 0.0234) + itForThisBeatSwitch * spin;
-  const MULTIPLIER = 3;
-  const BEAT_OFFSET = Math.cos(toRadians(it * degPerBeat));
-  const BEAT_OFFSET2 = Math.sin(toRadians(it * degPerBeat));
-  const BAR_OFFSET = Math.cos(toRadians(it * degPerBar));
-  const BAR_OFFSET2 = Math.sin(toRadians(it * degPerBar));
-  const SECTION_OFFSET = Math.cos(toRadians(it * degPerSection + beatSwitch % 360));
-  const SECTION_OFFSET2 = Math.sin(toRadians(it * degPerSection + beatSwitch % 360));
-  const dis_fact_normal = SECTION_OFFSET;
-  const dis_fact = dis_fact_normal * MULTIPLIER;
-  const perspective = PERSPECTIVE * PERSPECTIVE;
-  const depth = (USE_MIC ? loudness / 20 * SECTION_OFFSET * AMPLITUDE : SECTION_OFFSET * AMPLITUDE) / perspective;
-  const van = MOUSE_MODE ? [mouse_x, mouse_y] : [ACTUAL_SIZE * perspective * SECTION_OFFSET, ACTUAL_SIZE * perspective * SECTION_OFFSET2];
-  const additional = GOLDENRAT * dis_fact * 20;
+  const spin: number = SPIN * SPIN;
+  const beatSwitch: number = getMemoizedRandomChange(200 + Math.floor(it / msPerBeatSwitch));
+  const timeToCreateSquares: number = Math.min(msPerBar, msPerBeatSwitch);
+  const numOfSquares: number = Math.min(Math.round((it + 1) % msPerBeatSwitch / timeToCreateSquares * NUM_SQUARES), NUM_SQUARES);
+  const GOLDENRAT: number = getMemoizedRandomRatio(0.25 + beatSwitch * 0.0234) + itForThisBeatSwitch * spin;
+  const MULTIPLIER: number = 3;
+  const BEAT_OFFSET: number = Math.cos(toRadians(it * degPerBeat));
+  const SECTION_OFFSET: number = Math.cos(toRadians(it * degPerSection + beatSwitch % 360));
+  const SECTION_OFFSET2: number = Math.sin(toRadians(it * degPerSection + beatSwitch % 360));
+  const dis_fact_normal: number = SECTION_OFFSET;
+  const dis_fact: number = dis_fact_normal * MULTIPLIER;
+  const perspective: number = PERSPECTIVE * PERSPECTIVE;
+  const depth: number = (SECTION_OFFSET * AMPLITUDE) / perspective;
+  const van: [number, number] = [WIDTH * perspective * SECTION_OFFSET + 0.5 * mouse_x, HEIGHT * perspective * SECTION_OFFSET2+ 0.5 * mouse_y];
+  const additional: number = GOLDENRAT * dis_fact * 20;
   const squares = range(0, numOfSquares).map(n => {
     const deg_rot = n * GOLDENRAT * 360 + additional;
-    const x = ACTUAL_SIZE / 2 + Math.sin(toRadians(deg_rot)) * n * (Math.abs(dis_fact) + 0.5);
-    const y = ACTUAL_SIZE / 2 + Math.cos(toRadians(deg_rot)) * n * (Math.abs(dis_fact) + 0.5);
+    const x = WIDTH / 2 + Math.sin(toRadians(deg_rot)) * n * (Math.abs(dis_fact) + 0.5);
+    const y = HEIGHT / 2 + Math.cos(toRadians(deg_rot)) * n * (Math.abs(dis_fact) + 0.5);
     const size = 20 + BEAT_OFFSET * -1 * 5 * PULSE;
     return {
       square: {
-        origin: [x - size / 2, y - size / 2],
-        midpoint: [x, y],
+        origin: [x - size / 2, y - size / 2] as [number, number],
+        midpoint: [x, y] as [number, number],
         size: size
       },
       i: n
@@ -349,131 +208,31 @@ const animateFrame = (ctx, distanceFactor, it, loudness, frequency) => {
       return 1;
     }
   });
-  const amp = USE_MIC ? loudness / 40 * AMPLITUDE : AMPLITUDE || 0.01;
-  const p = USE_MIC ? 1 / (frequency / 20) * BPM : BPM || 10;
+  const amp: number = AMPLITUDE || 0.01;
+  const p: number = BPM || 10;
   // console.log(`amp: ${amp}, period: ${p}, raw_amp: ${loudness}, raw_freq: ${frequency}`)
-  const period = (i, iter) => Math.sin(toRadians(iter * degPerBar / p + iter * degPerBar)) * 0.5 * amp;
+  const period = (i: number, iter: number): number => Math.sin(toRadians(iter * degPerBar / p + iter * degPerBar)) * 0.5 * amp;
   COLOR === "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.square.origin, sq.square.size, van, depth));
   COLOR !== "blackwhite" && sorted_squares.map((sq, i) => drawColorSquare(ctx, sq.square.origin, sq.square.size, van, depth, sq.i + dis_fact_normal * 360));
 };
 
-const handleMouseMove = e => {
+const handleMouseMove = (e: MouseEvent) => {
   mouse_x = e.pageX - 224;
   mouse_y = e.pageY - 14;
 };
 window.addEventListener("mousemove", handleMouseMove);
 
-const renderAudio = data => {
-  audio_ctx.clearRect(0, 0, audio_ctx.canvas.width, audio_ctx.canvas.height);
-  audio_ctx.fillStyle = BG;
-  audio_ctx.fillRect(0, 0, audio_ctx.canvas.width, audio_ctx.canvas.height);
-  const bars = an != null ? an.frequencyBinCount : 100;
-  const bar_width = Math.max(audio_ctx.canvas.width / bars, 1);
-  data.map((val, i) => {
-    const normal_val = val / 2.55;
-    renderSquare(audio_ctx, "#fff", "#fff", [i * bar_width, normal_val], [(i + 1) * bar_width, normal_val], [(i + 1) * bar_width, 0], [i * bar_width, 0], true);
-    return 1;
-  });
-};
-
-let it = 0;
-let lastTime = 0;
+let it: number = 0;
+let lastTime: number = 0;
 const render = () => requestAnimationFrame(tstamp => {
-  const roughTime = Math.round(tstamp / 10);
-  const distanceFactor = Math.cos(toRadians(it * 6)) / 2;
-  const data_len = an == null ? 1 : an.frequencyBinCount;
-  const data = new Uint8Array(data_len);
-  const wave_data = new Uint8Array(data_len);
-  an != null && an.getByteFrequencyData(data);
-  an != null && an.getByteTimeDomainData(wave_data);
+  const roughTime: number = Math.round(tstamp / 10);
+  const distanceFactor: number = Math.cos(toRadians(it * 6)) / 2;
 
-  const filtered_data = data.map((val, i) => i < 2 ? 0 : val);
-  const { peak, index } = filtered_data.reduce((acc, datum, i) => datum > acc.peak ? { peak: datum, index: i } : acc, { peak: 0, index: 0 });
-  const total_loudness = filtered_data.reduce((acc, datum, i) => acc + datum, 0);
-  const avg_loudness = total_loudness / data_len;
-  const avg_freq = filtered_data.reduce((acc, datum, i) => acc + datum * i, 0) / total_loudness;
-  // console.log(peak, peak, index)
-  renderAudio(filtered_data);
-  raw_sine_ctx.clearRect(0, 0, raw_sine_ctx.canvas.width, raw_sine_ctx.canvas.height);
-  raw_sine_ctx.fillStyle = BG;
-  raw_sine_ctx.fillRect(0, 0, raw_sine_ctx.canvas.width, raw_sine_ctx.canvas.height);
-  wave_data.map((val, i) => drawPoint(raw_sine_ctx, i * 4, val / 255 * 100));
-
-  renderAudio(filtered_data);
-  osc_ctx.clearRect(0, 0, osc_ctx.canvas.width, osc_ctx.canvas.height);
-  osc_ctx.fillStyle = BG;
-  osc_ctx.fillRect(0, 0, osc_ctx.canvas.width, osc_ctx.canvas.height);
-  wave_data.map((val, i) => drawPoint(osc_ctx, Math.sin(toRadians(i / wave_data.length * 360)) * (val / 255 * osc_ctx.canvas.width) + 150, Math.cos(toRadians(i / wave_data.length * 360)) * (val / 255 * osc_ctx.canvas.height) + 150));
-
-  animateFrame(global_ctx, distanceFactor, it, avg_loudness, avg_freq);
+  animateFrame(global_ctx, distanceFactor, it);
   render();
   lastTime = lastTime || roughTime;
   it += roughTime - lastTime;
   lastTime = roughTime;
 });
 
-TAP_TO_SYNC_BUTTON.onclick = () => {
-  it = 0;
-};
-
-let taps = [];
-TAP_IN_BPM_BUTTON.onclick = () => {
-  const mostRecentTap = taps.length ? taps[taps.length - 1] : null;
-  const time = Date.now();
-
-  if (mostRecentTap == null || time > mostRecentTap + 2000) {
-    taps = [time];
-  } else {
-    taps = [...taps, time];
-    const tap_diffs = taps.map((tap, i) => i === 0 ? null : tap - taps[i - 1]).filter(diff => diff != null);
-    const avg_diff = tap_diffs.reduce((acc, diff) => acc + diff, 0) / tap_diffs.length;
-    const new_bpm = 1 / (avg_diff / 1000) * 60;
-    BPM_SLIDER.value = String(new_bpm);
-  }
-  TAP_COUNTER.innerText = "Taps: " + String(taps.length);
-};
-
-let currentRecording = null;
-function startRecording() {
-  console.log("STARTED RECORDING");
-  const chunks = []; // here we will store our recorded media chunks (Blobs)
-  const stream = c.captureStream(); // grab our canvas MediaStream
-  // $FlowFixMe
-  const rec = new MediaRecorder(stream); // init the recorder
-  // every time the recorder has new data, we will store it in our array
-  rec.ondataavailable = e => {
-    console.log("LOGGING E");
-    console.log(e);
-    chunks.push(e.data);
-  };
-  // only when the recorder stops, we construct a complete Blob from all the chunks
-  rec.onstop = e => exportVid(new Blob(chunks, { type: 'image/gif' }));
-
-  rec.start();
-  currentRecording = rec;
-}
-
-RECORD_BUTTON.onclick = () => {
-  if (currentRecording != null) {
-    currentRecording.stop();
-    currentRecording = null;
-    RECORD_BUTTON_LABEL.innerText = "Start Recording";
-  } else {
-    startRecording();
-    RECORD_BUTTON_LABEL.innerText = "Stop Recording";
-  }
-};
-
-function exportVid(blob) {
-  const vid = document.createElement('video');
-  RECORD_LOCATION.innerHTML = "";
-  vid.src = URL.createObjectURL(blob);
-  vid.controls = true;
-  document.body && document.body.appendChild(vid);
-  const a = document.createElement('a');
-  a.download = 'myvid.webm';
-  a.href = vid.src;
-  a.textContent = 'download the video';
-  RECORD_LOCATION.appendChild(a);
-}
 render();

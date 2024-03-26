@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 const AMPLITUDE_SLIDER = document.getElementById("amplitudeSlider");
 AMPLITUDE_SLIDER.min = 0;
 AMPLITUDE_SLIDER.max = 3;
