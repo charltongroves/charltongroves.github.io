@@ -29,12 +29,46 @@ html {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+}
+
+.hero {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 2;
     /* center circular gradient from middle to edge 0.4 black to 0.0 black */
     background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 20%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%);
+}
+.heroText {
+    width: 100%;
+    color: #fff;
+}
+
+.buttons {
+    position: absolute;
+    top: 85vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+#next-button {
+    margin: 1rem;
+    padding: 0.5rem 3rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    border: #fff 1px solid;
+    border-radius: 10rem
 }
 
 h1 {
