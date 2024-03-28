@@ -24,6 +24,9 @@ let BEAT_SWITCH: string = "4";
 let BEAT_SWITCH_DEFAULT: string = "4";
 let MOUSE_MODE: boolean = true;
 let touchingWithOneFinger = false;
+let isTouchScreen = false;
+
+let touchStrength = 0;
 
 function handleKeyPress(e: KeyboardEvent) {
   if (e.keyCode == 38) {
@@ -51,7 +54,7 @@ let mouse_x: number = 300;
 let mouse_y: number = 300;
 const toRadians = (degree: number): number => degree * (Math.PI / 180);
 const distBetween = (p1: [number, number], p2: [number, number]): number => Math.sqrt(Math.pow(p2[0] - p1[0], 2) + Math.pow(p2[1] - p1[1], 2));
-
+const bezier = (n: number) => n * n * (3 - 2 * n);
 const c = document.getElementById("myCanvas") as HTMLCanvasElement;
 // set canvas to height and width of viewport
 c.width = document.documentElement.clientWidth;
@@ -117,7 +120,7 @@ const drawSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], siz
   const y = origin[1] * noise_multiplier();
   const px = van[0];
   const py = van[1];
-  const getmid = (a: number, b: number): number => (a + (b - a) * distanceFactor) * noise_multiplier();
+  const getmid = (a: number, b: number): number => (a + (a-b) * distanceFactor) * noise_multiplier();
   const tl: [number, number] = [x, y];
   const tr: [number, number] = [x + size, y];
   const bl: [number, number] = [x, y + size];
@@ -163,6 +166,7 @@ const secPerBeat: number = 60 / BPM;
 const msPerBeat: number = secPerBeat * 100;
 const msPerBar: number = secPerBeat * 400;
 const msPerSection: number = secPerBeat * 4;
+const getmidWithWeight = (a: number, b: number, weight: number): number => (a + (weight * (b - a)))
 const animateFrame = (ctx: CanvasRenderingContext2D, distanceFactor: number, it: number) => {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.fillStyle = BG;
@@ -191,9 +195,11 @@ const animateFrame = (ctx: CanvasRenderingContext2D, distanceFactor: number, it:
   const dis_fact: number = dis_fact_normal * MULTIPLIER;
   const perspective: number = PERSPECTIVE * PERSPECTIVE;
   const depth: number = (SECTION_OFFSET * AMPLITUDE) / perspective;
+  const touchWeight = Math.min(1, touchStrength)
   const van: [number, number] = [
-    touchingWithOneFinger ? mouse_x : WIDTH * perspective * SECTION_OFFSET + mouse_x,
-    touchingWithOneFinger ? mouse_y : HEIGHT * perspective * SECTION_OFFSET2+ 0.5 * mouse_y];
+    getmidWithWeight(WIDTH * perspective * SECTION_OFFSET, mouse_x, isTouchScreen ? bezier(touchWeight) : 0.5),
+    getmidWithWeight(HEIGHT * perspective * SECTION_OFFSET2+ 0.5, mouse_y, isTouchScreen ? bezier(touchWeight) : 0.5)
+  ]
   const additional: number = GOLDENRAT * dis_fact * 20;
   const squares = range(0, numOfSquares).map(n => {
     const deg_rot = n * GOLDENRAT * 360 + additional;
@@ -236,13 +242,13 @@ window.addEventListener("mousemove", handleMouseMove);
 let startedTouching = 0
 // on touch start
 const handleTouchStart = (e: TouchEvent) => {
+  isTouchScreen = true
   const touch = e.touches[0];
   const touch2 = e.touches[1];
   touchingWithOneFinger =  touch2 == null;;
   touchingWithTwoFinger = touch2 != null;
   mouse_x = touch.clientX;
   mouse_y = touch.clientY;
-  NOISE = Math.max(NOISE, 1.001)
   startedTouching = Date.now()
 };
 window.addEventListener("touchstart", handleTouchStart);
@@ -256,20 +262,21 @@ const handleTouchMove = (e: TouchEvent) => {
     mouse_x = touch.clientX;
     mouse_y = touch.clientY;
   }
-  incrementTouch()
 };
 
 const incrementTouch = () => {
   if (touchingWithOneFinger && !touchingWithTwoFinger) {
-    NOISE = Math.min(1.1, NOISE * 1.0001 + 0.0001)
+    touchStrength = Math.min(2, touchStrength + 0.01);
   } else {
-    NOISE = NOISE - (NOISE - 1) * 0.01;
+    touchStrength = Math.max(0, touchStrength - 0.01);
   }
   if (touchingWithTwoFinger) {
     COLOR = 'color'
   } else if (!touchingWithTwoFinger) {
     COLOR = COLOR_DEFAULT
   }
+  NOISE =  1 + bezier(Math.max(0,  (touchStrength-1))) * 0.1;
+  console.log(NOISE)
 }
 
 window.addEventListener("touchmove", handleTouchMove);
