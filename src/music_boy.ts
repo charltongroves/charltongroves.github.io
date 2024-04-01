@@ -62,43 +62,6 @@ export const StartYourEngines = () => {
     ctx.stroke();
     ctx.closePath();
   };
-  // const drawColorSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number, colorOffset: number) => {
-  //   const noise_multiplier = (): number => Math.random() * (1 - NOISE) + 1;
-  //   const x = origin[0] * noise_multiplier();
-  //   const y = origin[1] * noise_multiplier();
-  //   const px = van[0];
-  //   const py = van[1];
-  //   const getmid = (a: number, b: number): number => (a + (a-b) * distanceFactor) * noise_multiplier();
-  //   const tl: [number, number] = [x, y];
-  //   const tr: [number, number] = [x + size, y];
-  //   const bl: [number, number] = [x, y + size];
-  //   const br: [number, number] = [x + size, y + size];
-  //   const ptl: [number, number] = [getmid(tl[0], px), getmid(tl[1], py)];
-  //   const ptr: [number, number] = [getmid(tr[0], px), getmid(tr[1], py)];
-  //   const pbl: [number, number] = [getmid(bl[0], px), getmid(bl[1], py)];
-  //   const pbr: [number, number] = [getmid(br[0], px), getmid(br[1], py)];
-  //   const color = "hsl(" + colorOffset % 360 + ", 100%, 70%)";
-  //   const lineColor = COLOR === "outlinecolor" ? "#fff" : color;
-  //   // rect left
-  //   ctx.strokeStyle = color;
-  //   renderSquare(ctx, lineColor, color, tl, ptl, pbl, bl, true);
-
-  //   // rect top
-  //   renderSquare(ctx, lineColor, color, tl, ptl, ptr, tr, true);
-
-  //   // rect bottom
-  //   renderSquare(ctx, lineColor, color, bl, pbl, pbr, br, true);
-
-  //   // rect right
-  //   renderSquare(ctx, lineColor, color, tr, ptr, pbr, br, true);
-
-  //   // Front square
-  //   renderSquare(ctx, lineColor, color, tl, tr, br, bl, false);
-
-  //   // Back square
-  //   renderSquare(ctx, lineColor, color, ptl, ptr, pbr, pbl, true);
-  // };
-
   const drawSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number, colorOffset?: undefined | number) => {
     const noise_multiplier = (): number => Math.random() * (1 - NOISE) + 1;
     const x = origin[0] * noise_multiplier();
@@ -148,10 +111,6 @@ export const StartYourEngines = () => {
     }
   });
   const getMemoizedRandomChange = _.memoize((num: number): number => getRandInt(0, 360));
-  const secPerBeat: number = 60 / BPM;
-  const msPerBeat: number = secPerBeat * 100;
-  const msPerBar: number = secPerBeat * 400;
-  const msPerSection: number = secPerBeat * 4;
   const getmidWithWeight = (a: number, b: number, weight: number): number => (a + (weight * (b - a)))
   const animateFrame = (ctx: CanvasRenderingContext2D, distanceFactor: number, it: number) => {
     console.log(mouse_x, mouse_y, touchStrength)
@@ -165,11 +124,10 @@ export const StartYourEngines = () => {
     const msPerSection: number = msPerBar * 16;
     const msPerBeatSwitch: number = msPerBeat * Number(BEAT_SWITCH);
     const degPerBeat: number = 360 / msPerBeat;
-    const degPerBar: number = 360 / msPerBar;
     const degPerSection: number = 360 / msPerSection;
     const itForThisBeatSwitch: number = it % msPerBeatSwitch;
     // **************
-    const spin: number = SPIN * SPIN;
+    const spin: number = -1 * SPIN / 300;
     const beatSwitch: number = getMemoizedRandomChange(200 + Math.floor(it / msPerBeatSwitch));
     const timeToCreateSquares: number = Math.min(msPerBar, msPerBeatSwitch);
     const numOfSquares: number = Math.min(Math.round((it + 1) % msPerBeatSwitch / timeToCreateSquares * NUM_SQUARES), NUM_SQUARES);
@@ -213,10 +171,6 @@ export const StartYourEngines = () => {
         return 1;
       }
     });
-    const amp: number = AMPLITUDE || 0.01;
-    const p: number = BPM || 10;
-    // console.log(`amp: ${amp}, period: ${p}, raw_amp: ${loudness}, raw_freq: ${frequency}`)
-    const period = (i: number, iter: number): number => Math.sin(toRadians(iter * degPerBar / p + iter * degPerBar)) * 0.5 * amp;
     COLOR === "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.square.origin, sq.square.size, van, depth, undefined));
     COLOR !== "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.square.origin, sq.square.size, van, depth, sq.i + dis_fact_normal * 360));
   };
@@ -274,7 +228,7 @@ export const StartYourEngines = () => {
     } else if (!touchingWithTwoFinger) {
       COLOR = COLOR_DEFAULT
     }
-    NOISE =  1 + bezier(Math.max(0,  (touchStrength-1))) * 0.1;
+    NOISE =  1 + bezier(Math.max(0,  (touchStrength-1))) * 0.02;
     console.log(NOISE)
   }
 
@@ -311,7 +265,7 @@ export const StartYourEngines = () => {
     lastTime = roughTime;
   });
   let stop = false;
-  setInterval(runEvery20ms, 20);
+  const stopInterval = setInterval(runEvery20ms, 20);
   window.addEventListener("touchend", handleTouchEnd);
   window.addEventListener("touchmove", handleTouchMove);
   window.addEventListener("touchstart", handleTouchStart);
@@ -321,6 +275,7 @@ export const StartYourEngines = () => {
   render();
   return () => {
     stop = true;
+    clearInterval(stopInterval);
     window.removeEventListener("touchend", handleTouchEnd);
     window.removeEventListener("touchmove", handleTouchMove);
     window.removeEventListener("touchstart", handleTouchStart);
