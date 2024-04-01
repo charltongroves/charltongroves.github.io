@@ -24,9 +24,11 @@ export const StartYourEngines = () => {
   let BEAT_SWITCH: string = "4";
   let BEAT_SWITCH_DEFAULT: string = "4";
   let MOUSE_MODE: boolean = true;
-  let touchingWithOneFinger = false;
-  let isTouchScreen = false;
 
+  // Interaction data
+  let touchingWithOneFinger = false;
+  let touchingWithTwoFinger = false;
+  let isTouchScreen = false;
   let touchStrength = 0;
 
   // Actual size is the width of the viewport
@@ -60,13 +62,50 @@ export const StartYourEngines = () => {
     ctx.stroke();
     ctx.closePath();
   };
-  const drawColorSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number, colorOffset: number) => {
+  // const drawColorSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number, colorOffset: number) => {
+  //   const noise_multiplier = (): number => Math.random() * (1 - NOISE) + 1;
+  //   const x = origin[0] * noise_multiplier();
+  //   const y = origin[1] * noise_multiplier();
+  //   const px = van[0];
+  //   const py = van[1];
+  //   const getmid = (a: number, b: number): number => (a + (a-b) * distanceFactor) * noise_multiplier();
+  //   const tl: [number, number] = [x, y];
+  //   const tr: [number, number] = [x + size, y];
+  //   const bl: [number, number] = [x, y + size];
+  //   const br: [number, number] = [x + size, y + size];
+  //   const ptl: [number, number] = [getmid(tl[0], px), getmid(tl[1], py)];
+  //   const ptr: [number, number] = [getmid(tr[0], px), getmid(tr[1], py)];
+  //   const pbl: [number, number] = [getmid(bl[0], px), getmid(bl[1], py)];
+  //   const pbr: [number, number] = [getmid(br[0], px), getmid(br[1], py)];
+  //   const color = "hsl(" + colorOffset % 360 + ", 100%, 70%)";
+  //   const lineColor = COLOR === "outlinecolor" ? "#fff" : color;
+  //   // rect left
+  //   ctx.strokeStyle = color;
+  //   renderSquare(ctx, lineColor, color, tl, ptl, pbl, bl, true);
+
+  //   // rect top
+  //   renderSquare(ctx, lineColor, color, tl, ptl, ptr, tr, true);
+
+  //   // rect bottom
+  //   renderSquare(ctx, lineColor, color, bl, pbl, pbr, br, true);
+
+  //   // rect right
+  //   renderSquare(ctx, lineColor, color, tr, ptr, pbr, br, true);
+
+  //   // Front square
+  //   renderSquare(ctx, lineColor, color, tl, tr, br, bl, false);
+
+  //   // Back square
+  //   renderSquare(ctx, lineColor, color, ptl, ptr, pbr, pbl, true);
+  // };
+
+  const drawSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number, colorOffset?: undefined | number) => {
     const noise_multiplier = (): number => Math.random() * (1 - NOISE) + 1;
     const x = origin[0] * noise_multiplier();
     const y = origin[1] * noise_multiplier();
     const px = van[0];
     const py = van[1];
-    const getmid = (a: number, b: number): number => (a + (b - a) * distanceFactor) * noise_multiplier();
+    const getmid = (a: number, b: number): number => (a + (a-b) * distanceFactor) * noise_multiplier();
     const tl: [number, number] = [x, y];
     const tr: [number, number] = [x + size, y];
     const bl: [number, number] = [x, y + size];
@@ -75,8 +114,8 @@ export const StartYourEngines = () => {
     const ptr: [number, number] = [getmid(tr[0], px), getmid(tr[1], py)];
     const pbl: [number, number] = [getmid(bl[0], px), getmid(bl[1], py)];
     const pbr: [number, number] = [getmid(br[0], px), getmid(br[1], py)];
-    const color = "hsl(" + colorOffset % 360 + ", 100%, 70%)";
-    const lineColor = COLOR === "outlinecolor" ? "#fff" : color;
+    const color = colorOffset != null ? "hsl(" + colorOffset % 360 + ", 100%, 70%)" : "#000";
+    const lineColor = colorOffset == null ? "#fff" : color;
     // rect left
     ctx.strokeStyle = color;
     renderSquare(ctx, lineColor, color, tl, ptl, pbl, bl, true);
@@ -97,42 +136,6 @@ export const StartYourEngines = () => {
     renderSquare(ctx, lineColor, color, ptl, ptr, pbr, pbl, true);
   };
 
-  const drawSquare = (ctx: CanvasRenderingContext2D, origin: [number, number], size: number, van: [number, number], distanceFactor: number) => {
-    const noise_multiplier = (): number => Math.random() * (1 - NOISE) + 1;
-    const x = origin[0] * noise_multiplier();
-    const y = origin[1] * noise_multiplier();
-    const px = van[0];
-    const py = van[1];
-    const getmid = (a: number, b: number): number => (a + (a-b) * distanceFactor) * noise_multiplier();
-    const tl: [number, number] = [x, y];
-    const tr: [number, number] = [x + size, y];
-    const bl: [number, number] = [x, y + size];
-    const br: [number, number] = [x + size, y + size];
-    const ptl: [number, number] = [getmid(tl[0], px), getmid(tl[1], py)];
-    const ptr: [number, number] = [getmid(tr[0], px), getmid(tr[1], py)];
-    const pbl: [number, number] = [getmid(bl[0], px), getmid(bl[1], py)];
-    const pbr: [number, number] = [getmid(br[0], px), getmid(br[1], py)];
-    const color = "#000";
-    // rect left
-    ctx.strokeStyle = color;
-    renderSquare(ctx, "#fff", "#000", tl, ptl, pbl, bl, true);
-
-    // rect top
-    renderSquare(ctx, "#fff", "#000", tl, ptl, ptr, tr, true);
-
-    // rect bottom
-    renderSquare(ctx, "#fff", "#000", bl, pbl, pbr, br, true);
-
-    // rect right
-    renderSquare(ctx, "#fff", "#000", tr, ptr, pbr, br, true);
-
-    // Front square
-    renderSquare(ctx, "#fff", "#000", tl, tr, br, bl, false);
-
-    // Back square
-    renderSquare(ctx, "#fff", "#000", ptl, ptr, pbr, pbl, false);
-  };
-
   const range = (start: number, stop: number): number[] => [...Array(stop - start).keys()].map(n => n + start);
   const getRandInt = (from: number, to: number): number => Math.round(Math.random() * (to - from) + from);
   const PREDEFINED: number[] = [0.05, 0.249, 0.33, 0.495, 0.665, 1.61803398875];
@@ -151,6 +154,7 @@ export const StartYourEngines = () => {
   const msPerSection: number = secPerBeat * 4;
   const getmidWithWeight = (a: number, b: number, weight: number): number => (a + (weight * (b - a)))
   const animateFrame = (ctx: CanvasRenderingContext2D, distanceFactor: number, it: number) => {
+    console.log(mouse_x, mouse_y, touchStrength)
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -180,8 +184,8 @@ export const StartYourEngines = () => {
     const depth: number = (SECTION_OFFSET * AMPLITUDE) / perspective;
     const touchWeight = Math.min(1, touchStrength)
     const van: [number, number] = [
-      getmidWithWeight(WIDTH * perspective * SECTION_OFFSET, mouse_x, isTouchScreen ? bezier(touchWeight) : 0.5),
-      getmidWithWeight(HEIGHT * perspective * SECTION_OFFSET2+ 0.5, mouse_y, isTouchScreen ? bezier(touchWeight) : 0.5)
+      getmidWithWeight(WIDTH * perspective * SECTION_OFFSET, mouse_x, bezier(touchWeight)),
+      getmidWithWeight(HEIGHT * perspective * SECTION_OFFSET2+ 0.5, mouse_y, bezier(touchWeight))
     ]
     const additional: number = GOLDENRAT * dis_fact * 20;
     const squares = range(0, numOfSquares).map(n => {
@@ -213,13 +217,13 @@ export const StartYourEngines = () => {
     const p: number = BPM || 10;
     // console.log(`amp: ${amp}, period: ${p}, raw_amp: ${loudness}, raw_freq: ${frequency}`)
     const period = (i: number, iter: number): number => Math.sin(toRadians(iter * degPerBar / p + iter * degPerBar)) * 0.5 * amp;
-    COLOR === "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.square.origin, sq.square.size, van, depth));
-    COLOR !== "blackwhite" && sorted_squares.map((sq, i) => drawColorSquare(ctx, sq.square.origin, sq.square.size, van, depth, sq.i + dis_fact_normal * 360));
+    COLOR === "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.square.origin, sq.square.size, van, depth, undefined));
+    COLOR !== "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.square.origin, sq.square.size, van, depth, sq.i + dis_fact_normal * 360));
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    mouse_x = e.pageX - 224;
-    mouse_y = e.pageY - 14;
+    mouse_x = e.clientX;
+    mouse_y = e.clientY;
   };
   let startedTouching = 0
   // on touch start
@@ -233,9 +237,22 @@ export const StartYourEngines = () => {
     mouse_y = touch.clientY;
     startedTouching = Date.now()
   };
+
+  const handleMouseDown = (e: MouseEvent) => {
+    console.log("MOUSE DOWN")
+    touchingWithOneFinger = true;
+    touchingWithTwoFinger = false;
+    mouse_x = e.clientX;
+    mouse_y = e.clientY;
+    startedTouching = Date.now()
+  };
+
+  const handleMouseUp = (e: MouseEvent) => {
+    touchingWithOneFinger = false;
+    touchingWithTwoFinger = false;
+    startedTouching = Date.now()
+  };
   
-  let touchingWithTwoFinger = false;
-  let totalDistanceMoved: number = 0;
   const handleTouchMove = (e: TouchEvent) => {
     // find total distance moved in the last 10 touches
     const touches = e.touches;
@@ -298,6 +315,8 @@ export const StartYourEngines = () => {
   window.addEventListener("touchend", handleTouchEnd);
   window.addEventListener("touchmove", handleTouchMove);
   window.addEventListener("touchstart", handleTouchStart);
+  window.addEventListener("mousedown", handleMouseDown);
+  window.addEventListener("mouseup", handleMouseUp);
   window.addEventListener("mousemove", handleMouseMove);
   render();
   return () => {
@@ -305,6 +324,8 @@ export const StartYourEngines = () => {
     window.removeEventListener("touchend", handleTouchEnd);
     window.removeEventListener("touchmove", handleTouchMove);
     window.removeEventListener("touchstart", handleTouchStart);
+    window.removeEventListener("mousedown", handleMouseDown);
+    window.removeEventListener("mouseup", handleMouseUp);
     window.removeEventListener("mousemove", handleMouseMove);
   }
 }

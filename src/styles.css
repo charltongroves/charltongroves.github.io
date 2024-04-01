@@ -50,7 +50,7 @@ html {
 
 .buttons {
     position: absolute;
-    top: 85vh;
+    top: 80vh;
     width: 100vw;
     overflow: hidden;
     display: flex;

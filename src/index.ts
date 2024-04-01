@@ -6,6 +6,10 @@ console.log(greeting);
 
 const letsPlay = () => {
   let cancelCurrent: undefined | (() => void) = undefined;
+  const c = document.getElementById("myCanvas") as HTMLCanvasElement;
+  // set canvas to height and width of viewport
+  c.width = document.documentElement.clientWidth;
+  c.height = document.documentElement.clientHeight;
   const nextButton = document.getElementById('next-button')
   const homePage = () => {
     cancelCurrent?.()
