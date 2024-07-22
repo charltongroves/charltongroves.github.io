@@ -5,6 +5,16 @@ import {MBV} from './movement_based_vision'
 const greeting: string = "Hello, TypeScript!";
 console.log(greeting);
 
+const pageToName: {[x: number]: string} = {
+  0: 'home',
+  1: 'booyah',
+  2: 'MBV'
+}
+const nameToPage: {[x: string]: number} = {
+  'home': 0,
+  'booyah': 1,
+  'MBV': 2
+}
 const letsPlay = () => {
   let cancelCurrent: undefined | (() => void) = undefined;
   const c = document.getElementById("myCanvas") as HTMLCanvasElement;
@@ -29,13 +39,13 @@ const letsPlay = () => {
   // get page we're on from url
   const url = new URL(window.location.href);
   console.log(url)
-  const page = parseInt(url.searchParams.get('page') || '0');
+  const page = nameToPage[url.searchParams.get('page') || 'home'];
   let currentPage = [1,2,3,4,5].includes(page) ? page : 0;
   // when the next button is clicked, go to next page
   const handleClick = () => {
     currentPage = (currentPage + 1) % 3;
     // set url
-    window.history.pushState({}, '', `?page=${currentPage}`);
+    window.history.pushState({}, '', `?page=${pageToName[currentPage]}`);
     if (currentPage === 0) {
       homePage();
     } else if (currentPage === 1){
