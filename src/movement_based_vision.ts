@@ -3,8 +3,12 @@ import _ from "lodash";
 export const MBV = () => {
   const BG = "#000";
   const c = document.getElementById("myCanvas")! as HTMLCanvasElement;
-  c.width = document.documentElement.clientWidth - 20;
-  c.height = document.documentElement.clientHeight - 20;
+  c.width = document.documentElement.clientWidth / 2;
+  c.height = document.documentElement.clientHeight / 2;
+  // scale canvas by 2x to fill screen
+  c.style.width = document.documentElement.clientWidth + 'px';
+  c.style.height = document.documentElement.clientHeight + 'px';
+
   const global_ctx = c.getContext("2d")!;
   const video = document.createElement('video');
   video.width = c.width;
@@ -19,7 +23,7 @@ export const MBV = () => {
     .catch((error) => {
       console.error(error);
     });
-  let initX = 0;
+  let initX = -100;
   const textWidth = 550;
   const getText = () => {
     const canvas = document.createElement('canvas');
@@ -30,7 +34,7 @@ export const MBV = () => {
       return;
     }
     const title = "MOVEMENT BASED VISION"
-    ctx.font = "40px Arial";
+    ctx.font = "30px Arial";
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = "white";
@@ -78,7 +82,7 @@ export const MBV = () => {
         const pxNum = i / 4;
         const row = Math.floor(pxNum / c.width);
         const col = pxNum % c.width;
-        const textPixel = textData.data[(((col - initX) % textWidth) + (row * textWidth)) * 4];
+        const textPixel = textData.data[(((col + initX) % textWidth) + (row * textWidth)) * 4];
         const avg = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
         const avgPrv = (prevImg.data[i] + prevImg.data[i + 1] + prevImg.data[i + 2]) / 3;
         const bool = textPixel ? (Math.random() > 0.3) : initImage[i % 999999]
