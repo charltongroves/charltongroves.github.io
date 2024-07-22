@@ -15,6 +15,7 @@ export const MBV = () => {
   video.height = c.height;
   video.autoplay = true;
   video.style.display = 'none';
+  let issue = false;
   document.body.appendChild(video);
   navigator.mediaDevices.getUserMedia({ video: true })
     .then((stream) => {
@@ -40,6 +41,9 @@ export const MBV = () => {
     ctx.fillStyle = "white";
     const offset = initX;
     ctx.fillText(title, 0, 40);
+    if (issue) {
+      ctx.fillText("I NEED YOUR WEBCAM", 0,200);
+    }
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     canvas.remove();
     return imgData;
@@ -53,8 +57,18 @@ export const MBV = () => {
     if (!ctx) {
       return;
     }
+    // const title = "I NEED YOUR WEBCAM"
+    // ctx.font = "30px Arial";
+    // ctx.fillStyle = "#fff";
+    // ctx.fillText(title,  0 + Math.cos(initX / 50) * 100, 200 + Math.sin(initX / 50) * 100);
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
+    // check if webcam is on and streamming
+    if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+      issue = true;
+    } else {
+      issue = false;
+    }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     canvas.remove();
@@ -67,8 +81,10 @@ export const MBV = () => {
     initImage.push(Math.random() < 0.5 ? true : false)
   }
   let prevImg: ImageData | null = null;
-  const textData = getText()!;
+  let textData = getText()!;
+  let wasIssue = issue;
   const renderFrame = () => {
+    textData = getText()!;
     const imgData = getWebcamFrame()!
     const clone = new ImageData(new Uint8ClampedArray(imgData.data), imgData.width, imgData.height);
     const ctx = global_ctx
