@@ -113,7 +113,6 @@ export const StartYourEngines = () => {
   const getMemoizedRandomChange = _.memoize((num: number): number => getRandInt(0, 360));
   const getmidWithWeight = (a: number, b: number, weight: number): number => (a + (weight * (b - a)))
   const animateFrame = (ctx: CanvasRenderingContext2D, distanceFactor: number, it: number) => {
-    console.log(mouse_x, mouse_y, touchStrength)
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -193,7 +192,6 @@ export const StartYourEngines = () => {
   };
 
   const handleMouseDown = (e: MouseEvent) => {
-    console.log("MOUSE DOWN")
     touchingWithOneFinger = true;
     touchingWithTwoFinger = false;
     mouse_x = e.clientX;
@@ -229,7 +227,6 @@ export const StartYourEngines = () => {
       COLOR = COLOR_DEFAULT
     }
     NOISE =  1 + bezier(Math.max(0,  (touchStrength-1))) * 0.02;
-    console.log(NOISE)
   }
 
   
@@ -251,6 +248,8 @@ export const StartYourEngines = () => {
 
   let it: number = 0;
   let lastTime: number = 0;
+  let stop = false;
+
   const render = () => requestAnimationFrame(tstamp => {
     if (stop) {
       return;
@@ -264,7 +263,6 @@ export const StartYourEngines = () => {
     it += roughTime - lastTime;
     lastTime = roughTime;
   });
-  let stop = false;
   const stopInterval = setInterval(runEvery20ms, 20);
   window.addEventListener("touchend", handleTouchEnd);
   window.addEventListener("touchmove", handleTouchMove);

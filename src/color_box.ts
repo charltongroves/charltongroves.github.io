@@ -134,18 +134,20 @@ export const BooYah = () => {
       }
     });
     const longTimeModifier = Math.sin(toRadians(it) + 3.14) + 1 / 3;
-    console.log(longTimeModifier)
     const amp: number = (AMPLITUDE) + Math.max(0, overDrive - 1) * 0.1;
     const p: number = (PERIOD) + (longTimeModifier**3);
-    // console.log(`amp: ${amp}, period: ${p}, raw_amp: ${loudness}, raw_freq: ${frequency}`)
     const period = (i: number, iter: number): number => Math.sin(toRadians(i / p + iter * 6)) * 0.5 * amp;
     COLOR === "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.origin, sq.size, van, period(i, it), false));
     COLOR !== "blackwhite" && sorted_squares.map((sq, i) => drawSquare(ctx, sq.origin, sq.size, van, period(i, it), true));
   };
 
+  let stop = false;
   let it: number = 0;
   let lastRender = Date.now();
   const render = () => requestAnimationFrame(() => {
+    if (stop) {
+      return
+    }
     if (lastRender + 20 < Date.now()) {
       const distanceFactor: number = Math.cos(toRadians(it * 6)) / 2;
       const mouseWeight = Math.min(1, touchStrength);
@@ -179,7 +181,6 @@ export const BooYah = () => {
   };
 
   const handleMouseDown = (e: MouseEvent) => {
-    console.log("MOUSE DOWN")
     touchingWithOneFinger = true;
     touchingWithTwoFinger = false;
     mouse_x = e.clientX;
@@ -240,6 +241,7 @@ export const BooYah = () => {
   window.addEventListener("mousemove", handleMouseMove);
   render();
   return () => {
+    stop = true;
     clearInterval(blah);
     window.removeEventListener("touchend", handleTouchEnd);
     window.removeEventListener("touchmove", handleTouchMove);
