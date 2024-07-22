@@ -25,7 +25,7 @@ export const MBV = () => {
       console.error(error);
     });
   let initX = -100;
-  const textWidth = 550;
+  const textWidth = 420;
   const getText = () => {
     const canvas = document.createElement('canvas');
     canvas.width = textWidth;
