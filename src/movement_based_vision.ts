@@ -75,23 +75,23 @@ export const MBV = () => {
     return imgData;
   }
 
-  let colorMode: boolean = false;
+  let colorMode: number = 0;
 
   const colors = [[
-    255,255,255
-  ],[
-    0,255,255
-  ],[
     0,0,255
+  ],[
+    255,0,0
   ],[
     255,0,255
   ],[
-    255,255,0
+    125,125,255
+  ],[
+    125,255,125
   ],
-  [ 255,  0,  0],
-  [  0,255,  0],
-  [  0,  0,255],
-  [125, 0,125],
+  [ 0,  255,  125],
+  [  255,125,  0],
+  [  255,  200,50],
+  [180, 125,0],
   [  0,255,125],
 ]
   let initImage: boolean[] = []
@@ -166,14 +166,12 @@ export const MBV = () => {
       initImage.push(Math.random() < 0.5 ? true : false)
       initColor.push(0);
     }
-    colorMode = !colorMode;
+    colorMode = (colorMode + 1) % 2;
   }
-  window.addEventListener("touchstart", handleTouchStart);
-  window.addEventListener("mousedown", handleTouchStart);
+  window.addEventListener("pointerup", handleTouchStart);
   return () => {
 
     stop = true;
-    window.removeEventListener("touchstart", handleTouchStart);
-    window.removeEventListener("mousedown", handleTouchStart);
+    window.removeEventListener("pointerup", handleTouchStart);
   }
 }
