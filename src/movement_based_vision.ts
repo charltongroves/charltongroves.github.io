@@ -75,10 +75,30 @@ export const MBV = () => {
     return imgData;
   }
 
+  let colorMode: boolean = false;
 
-  const initImage: boolean[] = []
+  const colors = [[
+    255,255,255
+  ],[
+    0,255,255
+  ],[
+    0,0,255
+  ],[
+    255,0,255
+  ],[
+    255,255,0
+  ],
+  [ 255,  0,  0],
+  [  0,255,  0],
+  [  0,  0,255],
+  [125, 0,125],
+  [  0,255,125],
+]
+  let initImage: boolean[] = []
+  let initColor: number[] = []
   for (let i = 0; i < 999999; i += 1) {
     initImage.push(Math.random() < 0.5 ? true : false)
+    initColor.push(0);
   }
   let prevImg: ImageData | null = null;
   let textData = getText()!;
@@ -104,11 +124,22 @@ export const MBV = () => {
         const bool = textPixel ? (Math.random() > 0.3) : initImage[i % 999999]
         const thresh = Math.random() > ((Math.abs((avgPrv - avg)) / 30) - 0.5) ? true : false;
         const combined = bool ? !thresh : thresh
-        const color = combined ? 255 : 0;
+        const newVal = textPixel ? initImage[i % 999999] : !combined
+
+        let color: number[] = [0,0,0];
+        if (!colorMode) {
+          color =  combined ? [255,255,255] : [0,0,0];
+        } else {
+          if (newVal != initImage[i % 999999]) {
+            initColor[i % 999999] = (initColor[i % 999999] + 1);
+          }
+          color = combined ? colors[initColor[i%999999] % colors.length] : colors[(initColor[i%999999] +1) % colors.length];
+        }
         initImage[i % 999999] = textPixel ? initImage[i % 999999] : !combined;
-        imgData.data[i] = color;
-        imgData.data[i + 1] = color;
-        imgData.data[i + 2] = color;
+
+        imgData.data[i] = color[0];
+        imgData.data[i + 1] = color[1];
+        imgData.data[i + 2] = color[2];
         imgData.data[i + 3] = 255;
       }
       ctx.putImageData(imgData, 0, 0);
@@ -128,7 +159,21 @@ export const MBV = () => {
     render();
   });
   render();
+  const handleTouchStart = () => {
+    initImage = []
+    initColor = []
+    for (let i = 0; i < 999999; i += 1) {
+      initImage.push(Math.random() < 0.5 ? true : false)
+      initColor.push(0);
+    }
+    colorMode = !colorMode;
+  }
+  window.addEventListener("touchstart", handleTouchStart);
+  window.addEventListener("mousedown", handleTouchStart);
   return () => {
+
     stop = true;
+    window.removeEventListener("touchstart", handleTouchStart);
+    window.removeEventListener("mousedown", handleTouchStart);
   }
 }
