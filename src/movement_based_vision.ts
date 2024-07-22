@@ -70,6 +70,12 @@ export const MBV = () => {
       issue = false;
     }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // check if any image was drawn 
+    if (ctx.getImageData(0, 0, canvas.width, canvas.height).data[0] === 0) {
+      issue = true;
+    } else {
+      issue = false;
+    }
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     canvas.remove();
     return imgData;
@@ -121,7 +127,7 @@ export const MBV = () => {
         const textPixel = textData.data[(((col + initX) % textWidth) + (row * textWidth)) * 4];
         const avg = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
         const avgPrv = (prevImg.data[i] + prevImg.data[i + 1] + prevImg.data[i + 2]) / 3;
-        const bool = textPixel ? (Math.random() > 0.3) : initImage[i % 999999]
+        const bool = textPixel ? (Math.random() > (row > 100 ? 0.15 : 0.3)) : initImage[i % 999999]
         const thresh = Math.random() > ((Math.abs((avgPrv - avg)) / 30) - 0.5) ? true : false;
         const combined = bool ? !thresh : thresh
         const newVal = textPixel ? initImage[i % 999999] : !combined
@@ -169,8 +175,14 @@ export const MBV = () => {
     colorMode = (colorMode + 1) % 2;
   }
   window.addEventListener("pointerup", handleTouchStart);
+  const foreground = document.getElementById("foregroundName")
+  if (foreground) {
+    foreground.style.opacity = '0';
+  }
   return () => {
-
+    if (foreground) {
+      foreground.style.opacity = '';
+    }
     stop = true;
     window.removeEventListener("pointerup", handleTouchStart);
   }
