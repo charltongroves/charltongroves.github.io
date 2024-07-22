@@ -86,9 +86,10 @@ export const MBV = () => {
         const avg = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
         const avgPrv = (prevImg.data[i] + prevImg.data[i + 1] + prevImg.data[i + 2]) / 3;
         const bool = textPixel ? (Math.random() > 0.3) : initImage[i % 999999]
-        const thresh = Math.random() > ((Math.abs((avgPrv - avg)) / 30) - 1) ? true : false;
+        const thresh = Math.random() > ((Math.abs((avgPrv - avg)) / 30) - 0.5) ? true : false;
         const combined = bool ? !thresh : thresh
         const color = combined ? 255 : 0;
+        initImage[i % 999999] = textPixel ? initImage[i % 999999] : !combined;
         imgData.data[i] = color;
         imgData.data[i + 1] = color;
         imgData.data[i + 2] = color;
