@@ -27,9 +27,18 @@ type Cat = {
         node: null | HTMLDivElement;
     }
 }
-const createCat = (x: number, y: number): Cat => {
+
+async function loadImage(url: string, elem: HTMLImageElement) {
+    return new Promise((resolve, reject) => {
+        elem.onload = () => resolve(elem);
+        elem.onerror = reject;
+        elem.src = url;
+    });
+}
+async function createCat(x: number, y: number): Promise<Cat> {
     const cat = new Image();
-    cat.src = catSrcs[Math.floor(Math.random() * catSrcs.length)];
+    const src = catSrcs[Math.floor(Math.random() * catSrcs.length)];
+    await loadImage(src, cat)
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     cat.style.position = 'absolute';
@@ -158,7 +167,7 @@ const updateCats = (cats: Cat[]) => {
             addText(catSounds[indx], cat)
             cat.meowChance = 0;
         } else {
-            cat.meowChance += 0.00005 * frames;
+            cat.meowChance += 0.00002 * frames;
         }
     });
     cats.forEach((cat) => {
@@ -212,9 +221,10 @@ export const CATS = () => {
     const y = event.clientY;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const cat = createCat(x/viewportWidth, y/viewportHeight);
-    parent.appendChild(cat.node);
-    aliveCats.push(cat);
+    createCat(x/viewportWidth, y/viewportHeight).then((cat) => {
+        parent.appendChild(cat.node);
+        aliveCats.push(cat);
+    });
   }
   window.addEventListener("pointerup", handleTouchStart);
   const foreground = document.getElementById("foregroundName")
