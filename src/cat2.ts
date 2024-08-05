@@ -203,11 +203,27 @@ const updateCats = (cats: Cat[]) => {
 
 }
 const aliveCats: Cat[] = [];
-
+const preloadedCats = [];
+const preloadedAudio = [];
 export const CATS = () => {
   const BG = "#000";
-  const parent = document.getElementById("cats")! as HTMLElement;
 
+  const parent = document.getElementById("cats")! as HTMLElement;
+  // preload all cats and sounds
+  if (preloadedCats.length === 0) {
+    catSrcs.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+        preloadedCats.push(img);
+    });
+    [...meowSrcs, yippee, bonk].forEach((src) => {
+        const audio = new Audio();
+        audio.src = src;
+        preloadedAudio.push(audio);
+        audio.load();
+    });
+
+  }
   let stop = false;
 
   const renderFrame = () => {
@@ -227,10 +243,11 @@ export const CATS = () => {
     });
   }
   window.addEventListener("pointerup", handleTouchStart);
-  const foreground = document.getElementById("foregroundName")
+  const foregroundName = document.getElementById("foregroundName")
   const hero = document.getElementById("hero")
-  if (foreground) {
-    foreground.style.opacity = '0';
+  const prevText = foregroundName?.innerText;
+  if (foregroundName) {
+    foregroundName.innerText = 'tap to add cat';
   }
   if (hero) {
     hero.style.background = 'transparent';
@@ -245,8 +262,8 @@ window.addEventListener("deviceorientation", (event) => {
   renderFrame();
   parent.style.backgroundColor = "skyblue"
   return () => {
-    if (foreground) {
-      foreground.style.opacity = '';
+    if (foregroundName) {
+        foregroundName.innerText = prevText || '';
     }
     if (hero) {
       hero.style.background = '';
