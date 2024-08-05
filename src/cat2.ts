@@ -35,6 +35,18 @@ async function loadImage(url: string, elem: HTMLImageElement) {
         elem.src = url;
     });
 }
+function playSound(src: string, text: string, cat: Cat, vol: number = 1) {
+    const audio = new Audio(src);
+    audio.volume = vol;
+    audio.play();
+    if (text) {
+        addText(text, cat);
+    }
+    audio.onended = () => {
+        audio.src = '';
+        audio.remove();
+    }
+}
 async function createCat(x: number, y: number): Promise<Cat> {
     const cat = new Image();
     const src = catSrcs[Math.floor(Math.random() * catSrcs.length)];
@@ -47,9 +59,6 @@ async function createCat(x: number, y: number): Promise<Cat> {
     cat.style.transform = `translate(${x * viewportWidth}px, ${y * viewportHeight}px)`;
     cat.style.width = '54px';
     cat.style.height = '96px';
-    // play yippee sound
-    const yippeeSound = new Audio(yippee);
-    yippeeSound.play();
     const newCat = {
         x,
         y,
@@ -60,7 +69,8 @@ async function createCat(x: number, y: number): Promise<Cat> {
         node: cat,
         meowChance: 0,
     }
-    addText('Yippee!', newCat);
+    // play yippee sound
+    playSound(yippee, 'Yippee!', newCat);
     return newCat;
 }
 
@@ -159,15 +169,12 @@ const updateCats = (cats: Cat[]) => {
         cat.ySpeed += (gravity * frames * gravityCoefficient * yAccelCoeff);
         cat.node.style.transform = `translate(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px)`;
 
-        if (cat.meowChance > Math.random()) {
+        if ((cat.meowChance * frames)> Math.random()) {
             const indx = Math.floor(Math.random() * 4)
-            const meowSound = new Audio(meowSrcs[indx]);
-            meowSound.volume = (Math.random() * 0.5) + 0.5;
-            meowSound.play();
-            addText(catSounds[indx], cat)
+            playSound(meowSrcs[indx], catSounds[indx], cat, (Math.random() * 0.5) + 0.5);
             cat.meowChance = 0;
         } else {
-            cat.meowChance += 0.00002 * frames;
+            cat.meowChance += 0.000025 * frames;
         }
     });
     cats.forEach((cat) => {
@@ -192,12 +199,13 @@ const updateCats = (cats: Cat[]) => {
             }
         }
     })
-    catMagnitude.forEach((mag) => {
+    catMagnitude.forEach((mag, i) => {
         if (mag > 0.003) {
             const bonkSound = new Audio(bonk);
             // adjust audio level based on magnitude
             bonkSound.volume = Math.min(1, mag * 30);
             bonkSound.play();
+            playSound(bonk, '', cats[i]);
         }
     })
 
@@ -253,12 +261,13 @@ export const CATS = () => {
     hero.style.background = 'transparent';
   }
   // use device orientation to determine gravity
-window.addEventListener("deviceorientation", (event) => {
+  const onDeviceOrient = (event: DeviceOrientationEvent) => {
     xAccel = Math.min(1, (event.gamma || 0) / 45)
     xAccel = Math.max(-1, xAccel)
     yAccel = Math.min(1, (event.beta || 90) / 45);
     yAccel = Math.max(-1, yAccel)
-});
+  }
+  window.addEventListener("deviceorientation", onDeviceOrient);
   renderFrame();
   parent.style.backgroundColor = "skyblue"
   return () => {
@@ -270,5 +279,6 @@ window.addEventListener("deviceorientation", (event) => {
     }
     parent.style.backgroundColor = "transparent"
     window.removeEventListener("pointerup", handleTouchStart);
+    window.removeEventListener("deviceorientation", onDeviceOrient);
   }
 }
