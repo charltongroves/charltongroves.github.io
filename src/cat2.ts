@@ -98,13 +98,14 @@ const addText = (text: string, cat: Cat) => {
     }
 }
 const updateCats = (cats: Cat[]) => {
-    if (cats.length === 0) {
-        return;
-    }
+
     // percentage of viewport height per frame per frame
     const gravity = 0.0002;
     const timeDiff = Date.now() - time;
     time = Date.now();
+    if (cats.length === 0) {
+        return;
+    }
     const frames = Math.min(timeDiff / 16, 2);
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
