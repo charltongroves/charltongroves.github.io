@@ -2,18 +2,21 @@ import './styles.css'
 import { StartYourEngines } from "./music_boy"
 import { BooYah } from "./color_box"
 import {MBV} from './movement_based_vision'
+import { CATS } from "./cat2"
 const greeting: string = "Hello, TypeScript!";
 console.log(greeting);
 
 const pageToName: {[x: number]: string} = {
   0: 'home',
   1: 'booyah',
-  2: 'MBV'
+  2: 'MBV',
+  3: 'cat'
 }
 const nameToPage: {[x: string]: number} = {
   'home': 0,
   'booyah': 1,
-  'MBV': 2
+  'MBV': 2,
+  'cat': 3
 }
 const letsPlay = () => {
   let cancelCurrent: undefined | (() => void) = undefined;
@@ -24,35 +27,27 @@ const letsPlay = () => {
 
 
   const nextButton = document.getElementById('next-button')
-  const homePage = () => {
-    cancelCurrent?.()
-    cancelCurrent = StartYourEngines()
-  }
-  const secondPage = () => {
-    cancelCurrent?.()
-    cancelCurrent = BooYah()
-  }
-  const thirdPage = () => {
-    cancelCurrent?.()
-    cancelCurrent = MBV()
-  }
+  const pages = [
+    StartYourEngines,
+    BooYah,
+    MBV,
+    CATS,
+  ]
   // get page we're on from url
   const url = new URL(window.location.href);
   console.log(url)
   const page = nameToPage[url.searchParams.get('page') || 'home'];
-  let currentPage = [1,2,3,4,5].includes(page) ? page : 0;
+  let currentPage = page || 0;
   // when the next button is clicked, go to next page
   const handleClick = () => {
-    currentPage = (currentPage + 1) % 3;
+    currentPage = (currentPage + 1) % pages.length;
     // set url
     window.history.pushState({}, '', `?page=${pageToName[currentPage]}`);
-    if (currentPage === 0) {
-      homePage();
-    } else if (currentPage === 1){
-      secondPage();
-    } else {
-      thirdPage();
+    const page = pages[currentPage]
+    if (cancelCurrent) {
+      cancelCurrent();
     }
+    cancelCurrent = page();
   }
   currentPage -= 1;
   handleClick();
