@@ -56,7 +56,7 @@ async function createCat(x: number, y: number): Promise<Cat> {
         width: 54 / viewportWidth,
         height: 96 / viewportHeight,
         xSpeed: Math.random() * 0.02 - 0.01,
-        ySpeed: Math.random() * 0.02 - 0.01,
+        ySpeed: Math.random() * 0.02 - 0.02,
         node: cat,
         meowChance: 0,
     }
