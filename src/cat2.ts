@@ -10,6 +10,8 @@ import meow4 from './assets/meow4.mp3';
 import bonk from './assets/bonk.mp3';
 
 const catSrcs = [cat1, cat2, cat3, cat4];
+const meowSrcs = [meow1, meow2, meow3, meow4];
+const catSounds = ['miieeeow', 'miaow', 'maoew', 'meow']
 type Cat = {
     x: number;
     y: number;
@@ -18,6 +20,12 @@ type Cat = {
     xSpeed: number;
     ySpeed: number;
     node: HTMLImageElement;
+    meowChance: number;
+    text?: {
+        time: number;
+        text: string;
+        node: null | HTMLDivElement;
+    }
 }
 const createCat = (x: number, y: number): Cat => {
     const cat = new Image();
@@ -33,20 +41,43 @@ const createCat = (x: number, y: number): Cat => {
     // play yippee sound
     const yippeeSound = new Audio(yippee);
     yippeeSound.play();
-    return {
+    const newCat = {
         x,
         y,
         width: 54 / viewportWidth,
         height: 96 / viewportHeight,
         xSpeed: Math.random() * 0.02 - 0.01,
         ySpeed: Math.random() * 0.02 - 0.01,
-        node: cat
+        node: cat,
+        meowChance: 0,
     }
+    addText('Yippee!', newCat);
+    return newCat;
 }
 
 let time = Date.now();
 let xAccel = 0;
 let yAccel = 1;
+
+const addText = (text: string, cat: Cat) => {
+    if (cat.text?.node) {
+        document.body.removeChild(cat.text.node);
+    }
+    const textNode = document.createElement('div');
+    textNode.style.position = 'absolute';
+    textNode.style.top = '0px';
+    textNode.style.left = '0px';
+    textNode.style.color = 'white';
+    textNode.style.fontSize = '20px';
+    textNode.style.fontFamily = 'Arial';
+    textNode.innerText = text;
+    document.body.appendChild(textNode);
+    cat.text = {
+        time: 1000,
+        text,
+        node: textNode,
+    }
+}
 const updateCats = (cats: Cat[]) => {
     if (cats.length === 0) {
         return;
@@ -118,7 +149,40 @@ const updateCats = (cats: Cat[]) => {
         cat.xSpeed += (gravity * frames * gravityCoefficient * xAccelCoeff);
         cat.ySpeed += (gravity * frames * gravityCoefficient * yAccelCoeff);
         cat.node.style.transform = `translate(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px)`;
+
+        if (cat.meowChance > Math.random()) {
+            const indx = Math.floor(Math.random() * 4)
+            const meowSound = new Audio(meowSrcs[indx]);
+            meowSound.volume = (Math.random() * 0.5) + 0.5;
+            meowSound.play();
+            addText(catSounds[indx], cat)
+            cat.meowChance = 0;
+        } else {
+            cat.meowChance += 0.00005 * frames;
+        }
     });
+    cats.forEach((cat) => {
+        if (cat.text) {
+            if (!cat.text.node) {
+                cat.text.node = document.createElement('div');
+                cat.text.node.style.position = 'absolute';
+                cat.text.node.style.top = '0px';
+                cat.text.node.style.left = '0px';
+                cat.text.node.style.color = 'white';
+                cat.text.node.style.fontSize = 'px';
+                cat.text.node.style.fontFamily = 'Arial';
+                cat.text.node.innerText = cat.text.text;
+                document.body.appendChild(cat.text.node);
+            }
+            cat.text.node.style.transform = `translate(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px)`;
+            cat.text.time -= timeDiff;
+            if (cat.text.time <= 0) {
+                document.body.removeChild(cat.text.node);
+                cat.text.node = null;
+                cat.text = undefined;
+            }
+        }
+    })
     catMagnitude.forEach((mag) => {
         if (mag > 0.003) {
             const bonkSound = new Audio(bonk);
