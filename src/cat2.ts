@@ -18,6 +18,7 @@ import grab2 from './assets/grab2.png';
 import grab3 from './assets/grab3.png';
 
 const catSrcs = [cat1, cat2, cat3, cat4, cat5, cat6];
+const everyImage = [...catSrcs, grab0, grab1, grab2, grab3];
 const catN = catSrcs.length;
 const meowSrcs = [meow1, meow2, meow3, meow4];
 const catSounds = ['miieeeow', 'miaow', 'maoew', 'meow']
@@ -210,9 +211,9 @@ const updateEntities = (parent: HTMLElement, cats: (Arig | Cat)[]) => {
                 const cat = arig.holdingCat;
                 if (cat) {
                     cat.x = arig.x;
-                    cat.y = arig.y;
-                    cat.xSpeed = arig.xSpeed + Math.random() * 0.02;
-                    cat.ySpeed = arig.ySpeed + Math.random() * 0.02 + 0.01;
+                    cat.y = arig.y - cat.height * 1.1;
+                    cat.xSpeed = arig.xSpeed - Math.random() * 0.005 + 0.01;
+                    cat.ySpeed = arig.ySpeed - (Math.random() * 0.005 + 0.01);
                     cat.node.style.transform = `translate(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px)`;
                     aliveCats.add(cat);
                     cat.node.style.opacity = '';
@@ -398,7 +399,7 @@ export const CATS = () => {
   const parent = document.getElementById("cats")! as HTMLElement;
   // preload all cats and sounds
   if (preloadedCats.length === 0) {
-    catSrcs.forEach((src) => {
+    [...everyImage].forEach((src) => {
         const img = new Image();
         img.src = src;
         preloadedCats.push(img);
