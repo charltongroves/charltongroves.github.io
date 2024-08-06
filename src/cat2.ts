@@ -112,7 +112,7 @@ async function createCat(x: number, y: number): Promise<Cat> {
     cat.style.position = 'absolute';
     cat.style.top = `0px`;
     cat.style.left = `0px`;
-    cat.style.transform = `translate(${x * viewportWidth}px, ${y * viewportHeight}px)`;
+    cat.style.transform = `translate3d(${x * viewportWidth}px, ${y * viewportHeight}px,0px)`;
     cat.style.width = '80px';
     cat.style.height = '140px';
     const newCat: Cat = {
@@ -140,7 +140,7 @@ async function createArig(x: number, y: number): Promise<Arig> {
     cat.style.position = 'absolute';
     cat.style.top = `0px`;
     cat.style.left = `0px`;
-    cat.style.transform = `translate(${x * viewportWidth}px, ${y * viewportHeight}px)`;
+    cat.style.transform = `translate3d(${x * viewportWidth}px, ${y * viewportHeight}px,0px)`;
     cat.style.width = '120px';
     cat.style.height = '200px';
     const newCat: Arig = {
@@ -175,6 +175,7 @@ const addText = (text: string, cat: Entity) => {
     textNode.style.color = 'white';
     textNode.style.fontSize = '20px';
     textNode.style.fontFamily = 'Arial';
+    textNode.style.transform = 'translate3d(0,0,0)';
     textNode.innerText = text;
     document.body.appendChild(textNode);
     cat.text = {
@@ -212,7 +213,7 @@ const updateEntities = (parent: HTMLElement, cats: (Arig | Cat)[]) => {
                     cat.y = arig.y - cat.height * 1.1;
                     cat.xSpeed = arig.xSpeed - Math.random() * 0.005 + 0.01;
                     cat.ySpeed = arig.ySpeed - (Math.random() * 0.005 + 0.01);
-                    cat.node.style.transform = `translate(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px)`;
+                    cat.node.style.transform = `translate3d(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px,0px)`;
                     aliveCats.add(cat);
                     cat.node.style.opacity = '';
                     arig.holdingCat = null;
@@ -343,7 +344,7 @@ const updateEntities = (parent: HTMLElement, cats: (Arig | Cat)[]) => {
         const yAccelCoeff = gravityCoefficient * yAccel;
         cat.xSpeed += (gravity * frames * gravityCoefficient * xAccelCoeff);
         cat.ySpeed += (gravity * frames * gravityCoefficient * yAccelCoeff);
-        cat.node.style.transform = `translate(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px)`;
+        cat.node.style.transform = `translate3d(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px,0px)`;
         if (cat.type === "cat") {
             if ((cat.meowChance * frames)> Math.random()) {
                 const indx = Math.floor(Math.random() * meowSrcs.length)
@@ -367,7 +368,7 @@ const updateEntities = (parent: HTMLElement, cats: (Arig | Cat)[]) => {
                 cat.text.node.innerText = cat.text.text;
                 document.body.appendChild(cat.text.node);
             }
-            cat.text.node.style.transform = `translate(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px)`;
+            cat.text.node.style.transform = `translate3d(${cat.x * viewportWidth}px, ${cat.y * viewportHeight}px,0px)`;
             cat.text.time -= timeDiff;
             if (cat.text.time <= 0) {
                 document.body.removeChild(cat.text.node);
