@@ -87,8 +87,6 @@ function playSound(src: string, text: string, cat: Entity, vol: number = 1) {
         pool.push(audio);
     }
     audio.volume = vol;
-    // start audio from start
-    audio.currentTime = 0;
     audio.play();
     if (text) {
         addText(text, cat);
