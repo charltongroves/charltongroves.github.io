@@ -63,6 +63,11 @@ html {
 .heroText {
     width: 100%;
     color: #fff;
+
+}
+
+#heroText {
+    padding: 10vh 20vw;
 }
 
 .title {
@@ -107,6 +112,10 @@ html {
     user-select: none;
     border: #fff 1px solid;
     border-radius: 10rem
+}
+
+#next-button:hover {
+    background: rgba(0, 0, 0, 0.7);
 }
 
 h1 {

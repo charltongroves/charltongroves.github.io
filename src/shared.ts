@@ -4,6 +4,7 @@ export function setForeground(title: string, subtitle: string, onClick: () => vo
   const subtitleNode = document.getElementById("subtitle")!;
   const prevTitle = titleNode.innerText;
   const hero = document.getElementById("hero")!;
+  const heroText = document.getElementById("heroText")!;
   const prevSubtitle = subtitleNode.innerText;
   titleNode.innerText = title;
   subtitleNode.innerText = subtitle;
@@ -14,9 +15,9 @@ export function setForeground(title: string, subtitle: string, onClick: () => vo
   const handleClick = () => {
     cleanup = hideForeground();
     onClick();
-    hero.removeEventListener("pointerdown", handleClick);
+    heroText.removeEventListener("pointerdown", handleClick);
   }
-  hero.addEventListener("pointerdown", handleClick);
+  heroText.addEventListener("pointerdown", handleClick);
   let prevShadow = hero.style.background;
   if (hideShadow) {
     hero.style.background = 'transparent';
@@ -26,7 +27,7 @@ export function setForeground(title: string, subtitle: string, onClick: () => vo
     if (hideShadow) {
       hero.style.background = prevShadow;
     }
-   hero.removeEventListener("pointerdown", handleClick);
+    heroText.removeEventListener("pointerdown", handleClick);
     titleNode.innerText = prevTitle;
     subtitleNode.innerText = prevSubtitle;
   }

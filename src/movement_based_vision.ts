@@ -172,7 +172,7 @@ export const MBV = () => {
     colorMode = (colorMode + 1) % 2;
   }
   render();
-  const cleanup1 = setForeground("", "i need your webcam for this one, tap to change mode", () => {
+  const cleanup1 = setForeground("", "need webcam, tap to change mode", () => {
     document.body.appendChild(video);
     navigator.mediaDevices.getUserMedia({ video: true })
       .then((stream) => {
