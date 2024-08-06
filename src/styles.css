@@ -58,11 +58,31 @@ html {
     align-items: center;
     z-index: 2;
     /* center circular gradient from middle to edge 0.4 black to 0.0 black */
-    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 20%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%);
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.4) 20%, rgba(0, 0, 0, 0) 80%, rgba(0, 0, 0, 0) 100%);
 }
 .heroText {
     width: 100%;
     color: #fff;
+}
+
+.title {
+    color: #fff;
+    font-size: 2rem;
+    text-align: center;
+    /* soft blurry text shadow */
+    text-shadow: 0 0 1rem rgba(0, 0, 0, 1);
+    user-select: none;
+}
+
+.subtitle {
+    color: #fff;
+    opacity: 1;
+    font-size: 1.25rem;
+    text-align: center;
+    /* soft blurry text shadow */
+    text-shadow: 0 0 1rem rgba(0, 0, 0, 1);
+    user-select: none;
+    font-weight: normal;
 }
 
 .buttons {
@@ -73,7 +93,8 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2;
+    z-index: 10;
+    cursor: pointer;
 }
 
 #next-button {

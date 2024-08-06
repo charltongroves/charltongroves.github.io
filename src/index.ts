@@ -18,6 +18,8 @@ const nameToPage: {[x: string]: number} = {
   'MBV': 2,
   'cat': 3
 }
+
+
 const letsPlay = () => {
   let cancelCurrent: undefined | (() => void) = undefined;
   const c = document.getElementById("myCanvas") as HTMLCanvasElement;

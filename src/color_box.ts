@@ -1,3 +1,4 @@
+import { setForeground, hideForeground } from "./shared"
 
 export const BooYah = () => {
   const AMPLITUDE_SLIDER_DEFAULT: number = 0.4;
@@ -240,7 +241,10 @@ export const BooYah = () => {
   window.addEventListener("mouseup", handleMouseUp);
   window.addEventListener("mousemove", handleMouseMove);
   render();
+  const cleanup1 = setForeground("", "tap and hold, try 2 or 3 fingers", () => {
+  });
   return () => {
+    cleanup1();
     stop = true;
     clearInterval(blah);
     window.removeEventListener("touchend", handleTouchEnd);

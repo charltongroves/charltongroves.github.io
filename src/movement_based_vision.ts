@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import { setForeground, hideForeground } from "./shared"
 
 export const MBV = () => {
   const BG = "#000";
@@ -16,14 +17,7 @@ export const MBV = () => {
   video.autoplay = true;
   video.style.display = 'none';
   let issue = false;
-  document.body.appendChild(video);
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then((stream) => {
-      video.srcObject = stream;
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+
   let initX = -100;
   const textWidth = 420;
   const getText = () => {
@@ -70,12 +64,11 @@ export const MBV = () => {
       issue = false;
     }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    // check if any image was drawn 
-    if (ctx.getImageData(0, 0, canvas.width, canvas.height).data[0] === 0) {
+    // if ctx is totally black then we have an issue
+    if (ctx.getImageData(0, canvas.height/2, canvas.width, 1).data.every((val) => val === 0)) {
       issue = true;
-    } else {
-      issue = false;
     }
+
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     canvas.remove();
     return imgData;
@@ -164,8 +157,12 @@ export const MBV = () => {
     }
     render();
   });
-  render();
+  let first = true;
   const handleTouchStart = () => {
+    if (first) {
+      first = false;
+      return;
+    }
     initImage = []
     initColor = []
     for (let i = 0; i < 999999; i += 1) {
@@ -174,15 +171,20 @@ export const MBV = () => {
     }
     colorMode = (colorMode + 1) % 2;
   }
-  window.addEventListener("pointerup", handleTouchStart);
-  const foreground = document.getElementById("foregroundName")
-  if (foreground) {
-    foreground.style.opacity = '0';
-  }
+  render();
+  const cleanup1 = setForeground("", "i need your webcam for this one, tap to change mode", () => {
+    document.body.appendChild(video);
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    window.addEventListener("pointerup", handleTouchStart);
+  });
   return () => {
-    if (foreground) {
-      foreground.style.opacity = '';
-    }
+    cleanup1();
     stop = true;
     window.removeEventListener("pointerup", handleTouchStart);
   }

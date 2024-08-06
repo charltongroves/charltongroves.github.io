@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import { setForeground, hideForeground } from "./shared"
 
 export const StartYourEngines = () => {
   let AMPLITUDE: number = 0.4;
@@ -271,9 +272,12 @@ export const StartYourEngines = () => {
   window.addEventListener("mouseup", handleMouseUp);
   window.addEventListener("mousemove", handleMouseMove);
   render();
+  const cleanup1 = setForeground("charlie", "tap and hold, try 2 or 3 fingers", () => {
+  });
   return () => {
     stop = true;
     clearInterval(stopInterval);
+    cleanup1();
     window.removeEventListener("touchend", handleTouchEnd);
     window.removeEventListener("touchmove", handleTouchMove);
     window.removeEventListener("touchstart", handleTouchStart);

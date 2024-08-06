@@ -16,6 +16,7 @@ import grab0 from './assets/grab0.png';
 import grab1 from './assets/grab1.png';
 import grab2 from './assets/grab2.png';
 import grab3 from './assets/grab3.png';
+import { setForeground, hideForeground } from "./shared"
 
 const catSrcs = [cat1, cat2, cat3, cat4, cat5, cat6];
 const everyImage = [...catSrcs, grab0, grab1, grab2, grab3];
@@ -435,16 +436,6 @@ export const CATS = () => {
         aliveCats.add(cat);
     });
   }
-  window.addEventListener("pointerup", handleTouchStart);
-  const foregroundName = document.getElementById("foregroundName")
-  const hero = document.getElementById("hero")
-  const prevText = foregroundName?.innerText;
-  if (foregroundName) {
-    foregroundName.innerText = 'tap to add cat';
-  }
-  if (hero) {
-    hero.style.background = 'transparent';
-  }
   // use device orientation to determine gravity
   const onDeviceOrient = (event: DeviceOrientationEvent) => {
     xAccel = Math.min(1, (event.gamma || 0) / 45)
@@ -452,16 +443,14 @@ export const CATS = () => {
     yAccel = Math.min(1, (event.beta || 90) / 45);
     yAccel = Math.max(-1, yAccel)
   }
-  window.addEventListener("deviceorientation", onDeviceOrient);
   renderFrame();
   parent.style.backgroundColor = "skyblue"
+  const cleanup1 = setForeground("", "tap to add cat", () => {
+    window.addEventListener("deviceorientation", onDeviceOrient);
+    window.addEventListener("pointerup", handleTouchStart);
+  }, true);
   return () => {
-    if (foregroundName) {
-        foregroundName.innerText = prevText || '';
-    }
-    if (hero) {
-      hero.style.background = '';
-    }
+    cleanup1();
     parent.style.backgroundColor = "transparent"
     window.removeEventListener("pointerup", handleTouchStart);
     window.removeEventListener("deviceorientation", onDeviceOrient);
