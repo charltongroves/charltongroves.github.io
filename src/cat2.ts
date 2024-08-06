@@ -190,11 +190,11 @@ const updateEntities = (parent: HTMLElement, cats: (Arig | Cat)[]) => {
     // percentage of viewport height per frame per frame
     const gravity = 0.0002;
     const timeDiff = Date.now() - time;
-    time = Date.now();
     const frames = Math.min(timeDiff / 16, 2);
-    if (cats.length === 0 || frames < 1) {
+    if (cats.length === 0 || (timeDiff < (1000/60))) {
         return;
     }
+    time = Date.now();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     // handle collisions
