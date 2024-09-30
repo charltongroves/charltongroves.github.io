@@ -146,10 +146,10 @@ export const BRIDJ = () => {
   lettersInput.style.padding = "10px"
   lettersInput.style.boxSizing = "border-box"
   formContainer?.appendChild(lettersInput)
-  lettersInput.value = 'a,t,p,h,a,ce,c,re,n,e,v,r,a,h,d,e,ga,u,x,i,e,ug'
+  lettersInput.value = 'g,n,r,s,i,a,t,he,p,h,a,ce,c,re,n,e,v,r,a,h,d,e,ga,u,x,i,e,ug'
   // letters input tiny text helping label
   const lettersInputLabel = window.document.createElement("div")
-  lettersInputLabel.innerText = `Get letters by Running this in dev tools: \n[...document.getElementsByClassName('_tileInHand_zn84l_30')].map(e => e.innerText).map(t => t.replaceAll("\n","").replaceAll("?","").toLowerCase()).join(",")`
+  lettersInputLabel.innerText = `Get letters by Running this in dev tools: \n[...document.getElementsByClassName('_tileInHand_zn84l_30')].map(e => e.innerText).map(t => t.replaceAll(String.fromCharCode(10),"").replaceAll("?","").toLowerCase()).join(",")`
   lettersInputLabel.style.color = "white"
   lettersInputLabel.style.fontSize = "12px"
   lettersInputLabel.style.padding = "10px"
@@ -557,11 +557,17 @@ export const BRIDJ = () => {
   }
 
     function letsGo(firstWord: string[], secondWord: string[], letters: string[]) {
+      if (firstWord.length !== 6 || secondWord.length !== 6) {
+        alert('first and second word need exactly 6 tiles')
+        return;
+      }
       const gameState: string[][] = [firstWord,[],[],[],[],[],[],[],secondWord].map(r => r.length === 0 ? [...new Array(6)].map(() => '*') : r) 
       resultsList.innerHTML = ''
       existingNodeMap = new Map()
+      winningNodes = [];
       // Example usage
-      const allLetters = ["g","n","r","s","i","a","t","he","p","h","a","ce","c","re","n","e","v","r","a","h","d","e","ga","u","x","i","e","ug"]
+      const allLetters = letters
+      console.log(firstWord, secondWord, allLetters)
       let startingAvailableLetters: string[] = [];
       let startingNextLetters: string[] = [];
       allLetters.forEach((l, i) => {
@@ -585,9 +591,7 @@ export const BRIDJ = () => {
           ))
 
           const sorted = yay.sort((b,a) => b.score.score - a.score.score).reverse()
-          for (let i = 0; i < 500; i++) {
-          }
-          const topWinners = sorted.slice(0,100)
+          const topWinners = sorted.slice(0,300)
           addWinnersToResultsList(topWinners.map(w => ({
             node: w.node,
             score: w.score.score,
