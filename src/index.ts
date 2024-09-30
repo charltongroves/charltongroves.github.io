@@ -3,6 +3,8 @@ import { StartYourEngines } from "./music_boy"
 import { BooYah } from "./color_box"
 import {MBV} from './movement_based_vision'
 import { CATS } from "./cat2"
+import { BRIDJ } from './bridj'
+
 const greeting: string = "Hello, TypeScript!";
 console.log(greeting);
 
@@ -38,7 +40,12 @@ const letsPlay = () => {
   // get page we're on from url
   const url = new URL(window.location.href);
   console.log(url)
-  const page = nameToPage[url.searchParams.get('page') || 'home'];
+  const pageName = url.searchParams.get('page') || 'home'
+  if (pageName === 'bridj') {
+    BRIDJ();
+    return;
+  }
+  const page = nameToPage[pageName];
   let currentPage = page || 0;
   // when the next button is clicked, go to next page
   const handleClick = () => {
