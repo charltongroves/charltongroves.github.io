@@ -622,6 +622,8 @@ export const BRIDJ = () => {
   }
 
     function letsGo(firstWord: string[], secondWord: string[], letters: string[]) {
+      playAnswers = false;
+      finishedSearching = false;
       if (checkBox.checked) {
         trie = commonTrie
       } else {
@@ -666,6 +668,7 @@ export const BRIDJ = () => {
             score: w.score.score,
             words: w.words.reverse(),
           })))
+          finishedSearching = true;
           sorted[0] && updateGameState(sorted[0].node.gameState)
           // @ts-ignore
           window.YEET = sorted
