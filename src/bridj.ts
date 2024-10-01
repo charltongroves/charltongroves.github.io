@@ -72,6 +72,9 @@ export const BRIDJ = () => {
     }, 0)
   }
   let totalNodes = 0;
+  let checkingChildren = 0;
+
+  let finishedSearching: boolean = false;
   let winningNodes: GameNode[] = [];
   const dictionary = wordListFull.split("~")
   const commonDict = wordListCommon.split("~")
@@ -248,6 +251,7 @@ export const BRIDJ = () => {
   // Create a DIV grid of 6 x 9 squares that hold 2 letters each, make it look pretty
   const tableDiv = window.document.createElement("div")
   tableDiv.style.display = "grid"
+  tableDiv.style.position = "relative"
   tableDiv.style.gridTemplateColumns = "repeat(6, 1fr)"
   tableDiv.style.gridTemplateRows = "repeat(9, 1fr)"
   tableDiv.style.width = "380px"
@@ -257,18 +261,27 @@ export const BRIDJ = () => {
   tableDiv.style.margin = "auto"
   tableDiv.style.border = "1px solid white"
   tableDiv.style.borderRadius = "10px"
-  tableDiv.style.overflow = "hidden"
-  tableDiv.style.backgroundColor = "black"
   tableDiv.style.color = "white"
   tableDiv.style.padding = "10px"
   tableDiv.style.boxSizing = "border-box"
   containerDiv?.appendChild(tableDiv)
+
+  const tableTitle = window.document.createElement("div")
+  tableTitle.style.position = "absolute"
+  tableTitle.style.top = "-30px"
+  tableTitle.style.left = "0"
+  tableTitle.style.color = "white"
+  tableTitle.style.fontSize = "20px"
+  tableDiv.appendChild(tableTitle)
 
   containerDiv!.style.transform = 'scale(0.8)'
   containerDiv!.style.transformOrigin = '0% 0% 0px;'
 
   hero?.appendChild(containerDiv)
   hero?.appendChild(formContainer)
+
+  let playAnswers = false;
+
 
   function addWinnersToResultsList(winners: {node: GameNode, score: number, words: (string|undefined)[]}[]) {
     resultsList.innerHTML = ''
@@ -291,14 +304,15 @@ export const BRIDJ = () => {
       // Onclick should update the game state with their gamestate
       winnerDiv.onclick = () => {
         updateGameState(w.node.gameState)
+        playAnswers = false;
       }
       resultsList.appendChild(winnerDiv)
     })
   }
 
+
   // Make a function that takes a gamestate and renders the letters into this grid
   function renderGameState(gameState: string[][]) {
-    tableDiv.innerHTML = ""
     gameState.forEach((row, y) => {
       row.forEach((letter, x) => {
         const cell = window.document.createElement("div")
@@ -320,18 +334,27 @@ export const BRIDJ = () => {
     })
   }
 
+  const initGameState: string[][] = [[],[],[],[],[],[],[],[],[]].map(r => r.length === 0 ? [...new Array(6)].map(() => '*') : r) 
+  renderGameState(initGameState)
+
 
 
   // Make a function that UPDATES this grid with a gamestate and renders the letters into this grid
-  function updateGameState(gameState: string[][]) {
+  function updateGameState(gameState: string[][], it: number | null = null, tot: number | null  = null) {
+    if (it != null && tot != null) {
+      tableTitle.innerText = `Answer No. ${it} of ${tot} `
+    } else if (!finishedSearching) {
+      tableTitle.innerText = `Searching... Nodes Searched: ${totalNodes}`;
+    } else {
+      tableTitle.innerText = `Total Answers: ${winningNodes.length}`;
+    }
     gameState.forEach((row, y) => {
       row.forEach((letter, x) => {
-        const cell = tableDiv.children[y * 6 + x] as HTMLDivElement
+        const cell = tableDiv.children[y * 6 + x + 1] as HTMLDivElement
         cell.innerText = letter === '*' ? '' : letter
       })
     })
   }
-  let checkingChildren = 0;
   // @ts-ignore
   window.winningNodes = winningNodes as any;
 
@@ -624,7 +647,6 @@ export const BRIDJ = () => {
           startingNextLetters.push(l)
         }
       })
-      renderGameState(gameState)
       const startingGameNode = new GameNode(gameState, startingAvailableLetters, startingNextLetters)
       startingGameNode.search()
       const checkFinished = () => {
@@ -647,6 +669,16 @@ export const BRIDJ = () => {
           sorted[0] && updateGameState(sorted[0].node.gameState)
           // @ts-ignore
           window.YEET = sorted
+          let i = 0;
+          playAnswers = true;
+          const renderNext = () => {
+            updateGameState(sorted[i].node.gameState, i, sorted.length)
+            i = (i + 1) % sorted.length;
+            if (playAnswers) {
+              requestAnimationFrame(renderNext)
+            }
+          }
+          renderNext();
         } else {
           setTimeout(checkFinished, 0)
         }
