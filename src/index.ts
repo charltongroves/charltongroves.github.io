@@ -52,6 +52,7 @@ const pageFromUrl = () => {
 const setPageInUrl = (id: string) => {
   const url = new URL(location.href);
   url.searchParams.set('page', id);
+  if (id !== 'clock-grid') url.searchParams.delete('msg');
   history.pushState({}, '', url);
 };
 

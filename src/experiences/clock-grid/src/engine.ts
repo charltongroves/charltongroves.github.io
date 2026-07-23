@@ -329,33 +329,105 @@ const traceHands = (
 };
 
 export const ClockGrid = (root: HTMLElement) => {
+  const DEFAULT_MSG = '0911';
+
+  const encodeMsg = (text: string) => {
+    const bytes = new TextEncoder().encode(text);
+    let bin = '';
+    for (const b of bytes) bin += String.fromCharCode(b);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  };
+
+  const decodeMsg = (raw: string) => {
+    try {
+      const b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - (b64.length % 4));
+      const bin = atob(b64 + pad);
+      const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    } catch {
+      return null;
+    }
+  };
+
+  const msgFromUrl = () => {
+    const raw = new URL(location.href).searchParams.get('msg');
+    if (!raw) return null;
+    return decodeMsg(raw);
+  };
+
+  const writeMsgToUrl = (text: string) => {
+    const url = new URL(location.href);
+    url.searchParams.set('page', 'clock-grid');
+    const clean = text.trim();
+    if (clean) url.searchParams.set('msg', encodeMsg(clean));
+    else url.searchParams.delete('msg');
+    history.replaceState({}, '', url);
+  };
+
+  const initialMsg = msgFromUrl() ?? DEFAULT_MSG;
+
   const canvas = document.createElement('canvas');
   canvas.className = 'experience-canvas';
   canvas.style.display = 'block';
   canvas.style.width = '100%';
   canvas.style.height = '100%';
 
-  const ui = document.createElement('div');
-  ui.style.cssText = [
+  const chrome = document.createElement('div');
+  chrome.style.cssText = [
     'position:absolute',
-    'left:50%',
-    'bottom:max(16px, 3vh)',
-    'transform:translateX(-50%)',
+    'top:max(12px, 2vh)',
+    'left:max(12px, 2vw)',
+    'z-index:2',
     'display:flex',
+    'flex-direction:column',
+    'align-items:flex-start',
+    'gap:8px',
+    'font-family:ui-sans-serif, system-ui, sans-serif',
+  ].join(';');
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.setAttribute('aria-label', 'Edit message');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.textContent = 'Aa';
+  toggle.style.cssText = [
+    'border:1px solid rgba(244,241,234,0.22)',
+    'cursor:pointer',
+    'background:rgba(26,26,26,0.28)',
+    'color:rgba(244,241,234,0.55)',
+    'font-size:12px',
+    'font-weight:600',
+    'letter-spacing:0.04em',
+    'padding:7px 10px',
+    'border-radius:8px',
+    'backdrop-filter:blur(6px)',
+    'opacity:0.55',
+    'transition:opacity .2s ease, background .2s ease, color .2s ease',
+  ].join(';');
+  toggle.addEventListener('mouseenter', () => {
+    toggle.style.opacity = '0.9';
+  });
+  toggle.addEventListener('mouseleave', () => {
+    if (!composerOpen) toggle.style.opacity = '0.55';
+  });
+
+  const composer = document.createElement('div');
+  composer.hidden = true;
+  composer.style.cssText = [
+    'display:none',
     'gap:8px',
     'align-items:center',
-    'z-index:2',
     'padding:8px 10px',
     'border-radius:10px',
     'background:rgba(244,241,234,0.92)',
     'box-shadow:0 8px 24px rgba(0,0,0,0.25)',
-    'font-family:ui-sans-serif, system-ui, sans-serif',
   ].join(';');
 
   const input = document.createElement('input');
   input.type = 'text';
   input.placeholder = 'Type letters & numbers…';
-  input.value = '1923';
+  input.value = initialMsg;
   input.maxLength = 48;
   input.autocomplete = 'off';
   input.spellcheck = false;
@@ -385,9 +457,23 @@ export const ClockGrid = (root: HTMLElement) => {
     'border-radius:6px',
   ].join(';');
 
-  ui.append(input, button);
+  let composerOpen = false;
+
+  const setComposerOpen = (open: boolean) => {
+    composerOpen = open;
+    composer.hidden = !open;
+    composer.style.display = open ? 'flex' : 'none';
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.style.opacity = open ? '0.9' : '0.55';
+    toggle.style.background = open ? 'rgba(26,26,26,0.55)' : 'rgba(26,26,26,0.28)';
+    toggle.style.color = open ? 'rgba(244,241,234,0.9)' : 'rgba(244,241,234,0.55)';
+    if (open) input.focus();
+  };
+
+  composer.append(input, button);
+  chrome.append(toggle, composer);
   root.style.position = 'relative';
-  root.append(canvas, ui);
+  root.append(canvas, chrome);
 
   const ctx = canvas.getContext('2d')!;
   let stop = false;
@@ -435,7 +521,7 @@ export const ClockGrid = (root: HTMLElement) => {
     canvas.height = Math.floor(viewH * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (cols && rows) {
-      layout = computeGeometry(viewW, viewH, cols, rows, 64);
+      layout = computeGeometry(viewW, viewH, cols, rows, 0);
     }
     rebuildBackground();
   };
@@ -488,7 +574,7 @@ export const ClockGrid = (root: HTMLElement) => {
     const { lines, cols: c, rows: r } = pickLayout(text, viewW || innerWidth, viewH || innerHeight);
     cols = c;
     rows = r;
-    layout = computeGeometry(viewW, viewH, cols, rows, 64);
+    layout = computeGeometry(viewW, viewH, cols, rows, 0);
     rebuildBackground();
     const targets = buildTargets(lines, cols, rows);
 
@@ -535,14 +621,22 @@ export const ClockGrid = (root: HTMLElement) => {
   };
 
   const onWrite = () => {
+    writeMsgToUrl(input.value);
     startAnimation(input.value);
+    setComposerOpen(false);
   };
 
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       onWrite();
+    } else if (e.key === 'Escape') {
+      setComposerOpen(false);
     }
+  };
+
+  const onToggle = () => {
+    setComposerOpen(!composerOpen);
   };
 
   const onResize = () => {
@@ -550,16 +644,17 @@ export const ClockGrid = (root: HTMLElement) => {
     if (!animating) paint();
   };
 
+  toggle.addEventListener('click', onToggle);
   button.addEventListener('click', onWrite);
   input.addEventListener('keydown', onKey);
   window.addEventListener('resize', onResize);
 
   resize();
-  // Seed clocks at random, then animate into default text.
-  const seed = pickLayout(input.value, viewW, viewH);
+  // Seed clocks at random, then animate into URL/default text.
+  const seed = pickLayout(initialMsg, viewW, viewH);
   cols = seed.cols;
   rows = seed.rows;
-  layout = computeGeometry(viewW, viewH, cols, rows, 64);
+  layout = computeGeometry(viewW, viewH, cols, rows, 0);
   rebuildBackground();
   clocks = Array.from({ length: cols * rows }, () => {
     const h = Math.random() * 360;
@@ -580,11 +675,14 @@ export const ClockGrid = (root: HTMLElement) => {
     };
   });
   paint();
-  startAnimation(input.value);
+  // Ensure shared links land on this experience with the message in the URL.
+  writeMsgToUrl(initialMsg);
+  startAnimation(initialMsg);
 
   return () => {
     stop = true;
     cancelAnimationFrame(raf);
+    toggle.removeEventListener('click', onToggle);
     button.removeEventListener('click', onWrite);
     input.removeEventListener('keydown', onKey);
     window.removeEventListener('resize', onResize);
