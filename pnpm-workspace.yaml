@@ -1,0 +1,7 @@
+packages:
+  - src/experiences/*
+
+onlyBuiltDependencies:
+  - esbuild
+allowBuilds:
+  esbuild: true

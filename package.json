@@ -1,29 +1,18 @@
 {
-  "name": "charltongroves.github.io",
+  "name": "charlie-experiences",
   "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@github.com:charltongroves/charltongroves.github.io.git",
-  "author": "Charlton Groves <charlieg@canva.com>",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/lodash": "^4.17.0",
-    "css-loader": "^6.10.0",
-    "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.6.0",
-    "live-server": "1.2.1",
-    "style-loader": "^3.3.4",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.3",
-    "url-loader": "^4.1.1",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.4"
-  },
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72",
   "scripts": {
-    "build": "webpack --mode production",
-    "start": "webpack serve --open --mode development"
+    "build": "tsc --noEmit && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "start": "vite",
+    "deploy": "pnpm build && git push origin HEAD:main"
   },
-  "dependencies": {
-    "lodash": "^4.17.21"
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^7.3.6"
   }
 }
