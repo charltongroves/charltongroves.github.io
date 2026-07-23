@@ -20,6 +20,10 @@ const experiences: ExperienceRegistration[] = [
     id: 'cats',
     load: () => import('./experiences/cats/src/index'),
   },
+  {
+    id: 'clock-grid',
+    load: () => import('./experiences/clock-grid/src/index'),
+  },
 ];
 
 const stage = document.querySelector<HTMLElement>('[data-stage]')!;

@@ -17,6 +17,8 @@ importers:
 
   src/experiences/cats: {}
 
+  src/experiences/clock-grid: {}
+
   src/experiences/colour-grid: {}
 
   src/experiences/movement-vision: {}
