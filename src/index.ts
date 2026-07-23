@@ -3,6 +3,9 @@ import { ExperiencePlayer } from './runtime/player';
 import { createExperienceContext } from './runtime/prompt';
 import type { ExperienceRegistration } from './runtime/types';
 
+// Bust GitHub Pages CDN negative-cache after a bad branch deploy.
+document.documentElement.dataset.build = '2026-07-24';
+
 const experiences: ExperienceRegistration[] = [
   {
     id: 'home',
